@@ -1,74 +1,71 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
+
+
 body {
-  font: 16px/1.5 verdana, helvetica-neue, helvetica, arial, san-serif;
-  background: black;
-  color: #ececec;
-  padding: 0;
-  margin: 0;
+	padding:35px;
+	font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color:#777;
+	font-weight:300;
 }
-ul {
-  margin: 0;
-  padding: 0;
+
+.wrapper {
+	width:860px;
+	margin:0 auto;
 }
-a {
-  color: #ccc;
-  text-decoration: none;
+
+.title_link {
+	float: left;
+	padding: 5px;
+	color: #333;
+	font-size: 15px;
 }
- 
-a:hover {
-  color: #ececec;
-  text-decoration: underline;
+
+.project {
+	clear:both;
+	padding: 5px;
 }
- 
-#main {
-  width: 960px;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.4);
+
+.project_screenshot {
+	width: 40%;
+	height: 40%;
+	float: left;
 }
+
+.project_description {
+	position: relative;
+	left: 10px;
+	
+}
+
+
+
 header {
-  padding: 0 10px;
-  overflow: hidden;
+	width:270px;
+	height: 75px;
 }
+
 h1 {
-  margin: 0;
+	color: #222;
+	font-size:35px;
+	margin:0 0 0px;
 }
- 
-nav ul, ul.entries {
-  list-style-type: none;
+
+h2 {
+	font-size:18px;
+	-webkit-margin-after:5px;
 }
-nav li a {
-  float: left;
-  margin: 5px; 
+
+h3 {
+	font-size:16px;
+	-webkit-margin-before:0em;
+	-webkit-margin-after:0em;
+	padding: 4px;
 }
-.content {
-  padding: 10px;
-}
- 
-ul.entries li {
-  position: relative;
-  margin: 20px auto;
-  padding: 20px;
-  background: #ececec;
-  width: 600px;
-}
- 
-ul.entries img {
-  width: 600px;
-}
- 
-ul.entries li h3 {
-  position: absolute;
-  bottom: -18px;
-  left: 17px;
-  font-size: 2em;
-}
-ul.entries a {
-  color: #ececec;
-}
-ul.entries a:hover {
-  color: #fff;
-}
- 
-footer {
-  font-size: 0.65em;
-  text-align: center;
+
+hr {
+	height: 0px;
+	margin: 0px;
+	border-bottom: 1px solid #fff;
+	font-size: 1px;
+	margin-bottom: 20px;
 }
