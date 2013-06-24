@@ -3,10 +3,10 @@
 
 body {
 	padding:35px;
-	font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font:17px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color:#777;
 	font-weight:300;
-		width:860px;
+	width:840px;
 	margin:0 auto;
 }
 
@@ -14,13 +14,21 @@ body {
 	float: left;
 	padding: 5px;
 	color: #333;
-	font-size: 15px;
+	font-size: 18px;
 }
 
 .project {
 	clear:both;
 	padding: 5px;
 }
+
+.project_header {
+	-webkit-margin-before:0em;
+	-webkit-margin-after:0em;
+	padding-bottom: 40px;
+	padding-left: 15px;
+}
+
 
 .project_screenshot {
 	width: 40%;
@@ -30,8 +38,23 @@ body {
 
 .project_description {
 	float:left;
-	width: 50%;
+	width: 55%;
 	margin-left: 10px;
+	margin-top: 0px;
+}
+
+.project_links {
+
+}
+
+
+.project_link {
+	float: right;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	padding: 0px;
+	font-size: 14px;
+	text-decoration: none;
 }
 
 .separator {
@@ -41,14 +64,25 @@ body {
 	background-color: #555555;
 	margin-left: auto;
 	margin-right: auto;
-	margin-bottom: 13px;
-	margin-top: 18px;
+	margin-bottom: 23px;
+	margin-top: 28px;
 }
 
+.vertical_seperator {
+	float: right;
+	font-size: 15px;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.clear {
+	clear: both;
+}
 
 header {
 	width:270px;
 	height: 75px;
+	padding-bottom: 15px;
 }
 
 a {
@@ -57,27 +91,26 @@ a {
 
 h1 {
 	color: #222;
-	font-size:35px;
+	font-size:38px;
 	margin:0 0 0px;
 }
 
 h2 {
-	font-size:18px;
+	font-size:21px;
 	-webkit-margin-after:5px;
 	margin-bottom: 5px;
 }
 
 h3 {
-	font-size:16px;
+	font-size:19px;
+	float: left;
 	-webkit-margin-before:0em;
 	-webkit-margin-after:0em;
-	margin: 0 0px;
-	padding: 4px;
 }
 
 footer {
 	padding-top: 40px;
-	font-size:12px;
+	font-size:15px;
 	clear:both;
 	text-align:center;
 	color: #333;
