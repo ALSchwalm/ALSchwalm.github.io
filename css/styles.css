@@ -26,13 +26,12 @@ body {
 	width: 40%;
 	height: 40%;
 	float: left;
-	position: relative;
-	z-index: 3;
 }
 
 .project_description {
-	position: relative;
-	left: 10px;
+	float:left;
+	width: 50%;
+	margin-left: 10px;
 }
 
 .separator {
@@ -77,8 +76,7 @@ h3 {
 }
 
 footer {
-	position: relative;
-	top: 30px;
+	padding-top: 40px;
 	font-size:12px;
 	clear:both;
 	text-align:center;
