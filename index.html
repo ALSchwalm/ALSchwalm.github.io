@@ -4,59 +4,85 @@
 		<meta charset="utf-8" />
 		<title>Adam Schwalm</title>
 		<link rel="stylesheet" href="./css/styles.css" />
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script type="text/javascript" src="./js/jquery.fancybox.pack.js"></script>
+		<link rel="stylesheet" type="text/css" href="./css/jquery.fancybox.css" media="screen" />
 	</head>
 	<body>
-		<div class="wrapper">
-			<header>
-				<h1>alschwalm</h1>
-				<a href="http://www.github.com/alschwalm" target="tab" class="title_link">Github</a>
-				<a href="" target="tab" class="title_link">Twitter</a>
-			</header>
-			<h2>About</h2>
-			<p>
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. In dapibus nec mauris ac gravida. 
-				Morbi condimentum nibh eu consequat fermentum. Aenean dapibus accumsan mi non eleifend. 
-				Nunc vel est at sapien tincidunt rutrum. In pulvinar, metus non facilisis malesuada, ligula 
-				enim ornare ipsum, vitae consequat enim elit et turpis. Vivamus ornare nisl ut nisl porta pretium. 
-				Curabitur luctus, tellus at porttitor faucibus, felis diam luctus nulla, nec cursus tellus urna et nisl. 
-				Nunc nec massa neque. Morbi id ipsum condimentum, pretium massa sit amet, ultrices elit. 
-				In tristique tincidunt mollis. Nunc sit amet dictum tellus. Mauris et placerat velit. Quisque iaculis 
-				mattis ipsum, id blandit risus hendrerit in. Proin pharetra venenatis tellus, eu sodales lectus ornare 
-				id. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
+		<header>
+			<h1>alschwalm</h1>
+			<a href="http://www.github.com/alschwalm" target="tab" class="title_link">Github</a>
+			<a href="" target="tab" class="title_link">Twitter</a>
+		</header>
+		<h2>About</h2>
+		<p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. In dapibus nec mauris ac gravida. 
+			Morbi condimentum nibh eu consequat fermentum. Aenean dapibus accumsan mi non eleifend. 
+			Nunc vel est at sapien tincidunt rutrum. In pulvinar, metus non facilisis malesuada, ligula 
+			enim ornare ipsum, vitae consequat enim elit et turpis. Vivamus ornare nisl ut nisl porta pretium. 
+			Curabitur luctus, tellus at porttitor faucibus, felis diam luctus nulla, nec cursus tellus urna et nisl. 
+			Nunc nec massa neque. Morbi id ipsum condimentum, pretium massa sit amet, ultrices elit. 
+			In tristique tincidunt mollis. Nunc sit amet dictum tellus. Mauris et placerat velit. Quisque iaculis 
+			mattis ipsum, id blandit risus hendrerit in. Proin pharetra venenatis tellus, eu sodales lectus ornare 
+			id. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
+		</p>
+		<h2>Projects</h2>
+		
+		<div class="project">
+			<h3>Planets Web</h3>
+			
+			<a class="fancybox" href="./assets/planets_web.png" title="A shot of the game in action">
+				<img src="./assets/planets_web.png" class="project_screenshot"></img>
+			</a>
+			
+			<p class="project_description">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+				Integer suscipit enim elit, id gravida quam ultrices eu. Proin eleifend tempus velit ac 
+				interdum. Aliquam sollicitudin velit nec felis pellentesque, a tincidunt nunc placerat.
 			</p>
-			<h2>Projects</h2>
-			
-			<div class="project">
-				<h3>Planets Web</h3>
-				<img src="./assets/planets_web.png" class="project_screenshot"></img>
-				<p class="project_description">
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-					Integer suscipit enim elit, id gravida quam ultrices eu. Proin eleifend tempus velit ac 
-					interdum. Aliquam sollicitudin velit nec felis pellentesque, a tincidunt nunc placerat.
-				</p>
-			</div>
-			
-			<div class="project">
-				<div class="separator"><!----></div>
-				<h3>Planets Web</h3>
-				<img src="./assets/planets_web.png" class="project_screenshot"></img>
-				<p class="project_description">
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-					Integer suscipit enim elit, id gravida quam ultrices eu. Proin eleifend tempus velit ac 
-					interdum. Aliquam sollicitudin velit nec felis pellentesque, a tincidunt nunc placerat.
-				</p>
-			</div>
-			
-			
-			
-			
-			
-			
-			
-			
 		</div>
+		
+		<div class="project">
+			<div class="separator"><!----></div>
+			<h3>Planets Web</h3>
+			
+			<a class="fancybox" href="./assets/planets_web.png">
+				<img src="./assets/planets_web.png" class="project_screenshot"></img>
+			</a>
+			
+			<p class="project_description">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+				Integer suscipit enim elit, id gravida quam ultrices eu. Proin eleifend tempus velit ac 
+				interdum. Aliquam sollicitudin velit nec felis pellentesque, a tincidunt nunc placerat.
+			</p>
+		</div>
+		
+		<footer>
+			<p>
+				Contact me at <a href="mailto:adamschwalm@gmail.com">adamschwalm@gmail.com</a><br>
+				This website is hosted by <a href="https://github.com/" target="tab">Github.com</a><br>
+				&copy;2013 Adam Schwalm<br>
+			</p>
+		</footer>			
+			
 	</body>
+	<script>
 	
+	$(document).ready(function() {
+		$(".fancybox").fancybox({
+			openEffect	: 'none',
+			closeEffect	: 'none',
+			    helpers : {
+					title : {
+							type : 'inside'
+					},
+					overlay : {
+						locked : false
+					}
+				}
+		});
+	});
+	</script>
 	
 </html>
 
