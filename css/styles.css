@@ -4,16 +4,17 @@
 body {
 	padding:35px;
 	font:17px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-	color:#777;
+	color:#BBB;
 	font-weight:300;
 	width:840px;
 	margin:0 auto;
+	background-image: url('../assets/binding_dark.png');
 }
 
 .title_link {
 	float: left;
 	padding: 5px;
-	color: #333;
+	color: #CCC;
 	font-size: 18px;
 }
 
@@ -53,11 +54,15 @@ body {
 	text-decoration: none;
 }
 
+.project_link:hover {
+	text-decoration: underline;
+}
+
 .separator {
 	height: 1px;
 	width: 90%;
 	display: block;
-	background-color: #555555;
+	background-color: #BBB;
 	margin-left: auto;
 	margin-right: auto;
 	margin-bottom: 23px;
@@ -82,11 +87,11 @@ header {
 }
 
 a {
-	color: #333;
+	color: #BBB;
 }
 
 h1 {
-	color: #222;
+	color: #DDD;
 	font-size:38px;
 	margin:0 0 0px;
 }
@@ -108,5 +113,5 @@ footer {
 	font-size:15px;
 	clear:both;
 	text-align:center;
-	color: #333;
+	color: #AAA;
 }
