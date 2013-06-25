@@ -5,9 +5,9 @@
 		<meta charset="utf-8" />
 		<title>Adam Schwalm</title>
 		<link rel="stylesheet" href="./css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="./css/jquery.fancybox.css" media="screen" />
 		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.fancybox.pack.js"></script>
-		<link rel="stylesheet" type="text/css" href="./css/jquery.fancybox.css" media="screen" />
 	</head>
 	<body>
 		<header>
@@ -46,11 +46,18 @@
 				<img src="./assets/planets_web.png" class="project_screenshot"></img>
 			</a>
 			
-			<p class="project_description">
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-				Integer suscipit enim elit, id gravida quam ultrices eu. Proin eleifend tempus velit ac 
-				interdum. Aliquam sollicitudin velit nec felis pellentesque, a tincidunt nunc placerat.
-			</p>
+			<div class="project_description">
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+					Integer suscipit enim elit, id gravida quam ultrices eu. Proin eleifend tempus velit ac 
+					interdum. Aliquam sollicitudin velit nec felis pellentesque, a tincidunt nunc placerat.
+					(<span class="detail_button">details</span>)
+				</p>
+				<span class="project_details">
+					<li>Last Updated: 1/1/2012
+					<li>Status: Completed
+				</span>
+			</div>
 		</div>
 		
 		<div class="project">
@@ -73,18 +80,24 @@
 				<img src="./assets/planets1.png" style="display:none"></img>
 			</a>
 			
-			<p class="project_description">
-				Sed imperdiet euismod semper. Nulla congue est id felis ultricies, vel dapibus lacus venenatis. 
-				Donec at odio tortor. Nunc eu purus eget est convallis rutrum. Duis urna nibh, vestibulum ac iaculis a, 
-				ullamcorper a leo. Aliquam augue libero, varius ut libero sed, porttitor mollis lorem. Proin lacinia, 
-				elit et placerat semper, metus erat aliquet orci, id iaculis lorem orci ac risus. <br>
-				Morbi cursus fermentum diam eget pretium. Nam ut mauris eu lectus dictum tristique. Suspendisse auctor felis ut 
-				justo posuere, vel blandit ipsum condimentum. Curabitur id tincidunt massa, sed pellentesque orci. 
-				Aliquam erat volutpat. Vestibulum elementum interdum neque, nec bibendum leo. Vestibulum purus leo, 
-				accumsan vel turpis ac, aliquet tempus neque. Nunc sollicitudin hendrerit nulla.
-
-
-			</p>
+			<div class="project_description">
+				<p>
+					Sed imperdiet euismod semper. Nulla congue est id felis ultricies, vel dapibus lacus venenatis. 
+					Donec at odio tortor. Nunc eu purus eget est convallis rutrum. Duis urna nibh, vestibulum ac iaculis a, 
+					ullamcorper a leo. Aliquam augue libero, varius ut libero sed, porttitor mollis lorem. Proin lacinia, 
+					elit et placerat semper, metus erat aliquet orci, id iaculis lorem orci ac risus. <br>
+					Morbi cursus fermentum diam eget pretium. Nam ut mauris eu lectus dictum tristique. Suspendisse auctor felis ut 
+					justo posuere, vel blandit ipsum condimentum. Curabitur id tincidunt massa, sed pellentesque orci. 
+					Aliquam erat volutpat. Vestibulum elementum interdum neque, nec bibendum leo. Vestibulum purus leo, 
+					accumsan vel turpis ac, aliquet tempus neque. Nunc sollicitudin hendrerit nulla. 
+					(<span class="detail_button">details</span>)
+				</p>
+				<span class="project_details">
+					<p>
+					Last updated: 3/11/2013
+					<br>Project Status: Completed</P>
+				</span>
+			</div>
 		</div>
 		
 		
@@ -116,12 +129,14 @@
 				<img src="./assets/genetic4.png" style="display:none"></img>
 			</a>
 			
-			<p class="project_description">
-				Etiam dignissim varius turpis at viverra. Praesent lacinia erat et augue ornare, ac egestas magna 
-				euismod. Sed eu odio quis nisl faucibus fringilla. Suspendisse potenti. Pellentesque habitant morbi 
-				tristique senectus et netus et malesuada fames ac turpis egestas. Ut sit amet enim nec erat accumsan 
-				condimentum. In sit amet mollis arcu, vel tincidunt turpis.
-			</p>
+			<div class="project_description">
+				<p>
+					Etiam dignissim varius turpis at viverra. Praesent lacinia erat et augue ornare, ac egestas magna 
+					euismod. Sed eu odio quis nisl faucibus fringilla. Suspendisse potenti. Pellentesque habitant morbi 
+					tristique senectus et netus et malesuada fames ac turpis egestas. Ut sit amet enim nec erat accumsan 
+					condimentum. In sit amet mollis arcu, vel tincidunt turpis.
+				</p>
+			</div>
 		</div>
 		
 		<div class="project">
@@ -139,15 +154,17 @@
 			<a class="fancybox" href="./assets/conway1.png">
 				<img src="./assets/conway1.png" class="project_screenshot"></img>
 			</a>
-			<p class="project_description">
-				Morbi sollicitudin gravida erat, a tempus mauris venenatis at. Nunc ac laoreet nisi. 
-				Suspendisse imperdiet pharetra tellus sit amet viverra. Curabitur eleifend scelerisque nisi, 
-				quis lobortis nunc iaculis et. Vestibulum ac metus massa. Sed eu ligula a arcu bibendum lacinia 
-				in eu ipsum. Ut eleifend diam eget accumsan dictum. Integer congue nulla a justo eleifend tempus. 
-				Nulla vestibulum molestie commodo. Pellentesque vitae metus sodales, commodo nulla quis, auctor tellus. 
-				Donec ac eleifend felis, ut sagittis nisl. Nam fringilla rutrum condimentum. Aliquam posuere vel
-				sapien nec fringilla.
-			</p>
+			<div class="project_description">
+				<p>
+					Morbi sollicitudin gravida erat, a tempus mauris venenatis at. Nunc ac laoreet nisi. 
+					Suspendisse imperdiet pharetra tellus sit amet viverra. Curabitur eleifend scelerisque nisi, 
+					quis lobortis nunc iaculis et. Vestibulum ac metus massa. Sed eu ligula a arcu bibendum lacinia 
+					in eu ipsum. Ut eleifend diam eget accumsan dictum. Integer congue nulla a justo eleifend tempus. 
+					Nulla vestibulum molestie commodo. Pellentesque vitae metus sodales, commodo nulla quis, auctor tellus. 
+					Donec ac eleifend felis, ut sagittis nisl. Nam fringilla rutrum condimentum. Aliquam posuere vel
+					sapien nec fringilla.
+				</p>
+			</div>
 		</div>
 		
 		
@@ -168,7 +185,8 @@
 			prevEffect 	: 'none',
 			nextEffect 	: 'none',
 			afterLoad : function() {
-				this.title = 'Image ' + (this.index + 1) + ' of ' + this.group.length + (this.title ? ' - ' + this.title : '');
+				this.title = 'Image ' + (this.index + 1) + ' of ' 
+					+ this.group.length + (this.title ? ' - ' + this.title : '');
 			},
 			    helpers : {
 					title : {
@@ -180,6 +198,19 @@
 				}
 		});
 	});
+	
+	$('.detail_button').click(function() {
+
+		$(this).parent().parent().find(".project_details").toggle('fast');
+		
+		if ($(this).text() == "details") {
+			$(this).text("hide");
+		}
+		else {
+			$(this).text("details");
+		}
+	});
+	
 	</script>
 	
 </html>

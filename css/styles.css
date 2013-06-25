@@ -45,6 +45,22 @@ body {
 	margin-top: 0px;
 }
 
+.detail_button {
+	text-decoration: underline;
+	cursor: hand; 
+	cursor: pointer;
+}
+
+.project_details {
+	position:relative;
+	display: none;
+	width: 100%;
+	height: 100%;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	
+}
+
 .project_link {
 	float: right;
 	margin-top: 0px;
