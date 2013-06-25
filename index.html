@@ -12,7 +12,7 @@
 	<body>
 		<header>
 			<h1>alschwalm</h1>
-			<a href="http://www.github.com/alschwalm" target="tab" class="title_link">Github</a>
+			<a href="https://github.com/ALSchwalm?tab=repositories" target="tab" class="title_link">Github</a>
 			<a href="" target="tab" class="title_link">Twitter</a>
 		</header>
 		<h2>About</h2>
@@ -31,11 +31,11 @@
 		
 		<div class="project">
 			<div class="project_header">
-				<a href="http://www.github.com/alschwalm" target="tab" class="project_link">Github</a>
+				<a href="https://github.com/ALSchwalm/PlanetsWeb" target="tab" class="project_link">Github</a>
 				
 				<span class="vertical_seperator"> | </span>
 				
-				<a href="http://www.github.com/alschwalm" target="tab" class="project_link">play</a>
+				<a href="http://alschwalm.github.io/PlanetsWeb/" target="tab" class="project_link">play</a>
 				
 				<h3>Planetary Conquest Online</h3><!--Title comes after link to fix strange IE behavior with float right-->
 			</div>
@@ -58,16 +58,21 @@
 			
 			<div class="project_header">
 
-				<a href="http://www.github.com/alschwalm" target="tab" class="project_link">Github</a>
+				<a href="https://github.com/ALSchwalm/Planets" target="tab" class="project_link">Github</a>
 				
 				<h3>Planetary Conquest</h3>
 			</div>
 			
 			<div class="clear"></div>
 			
-			<a class="fancybox" href="./assets/planets.png">
-				<img src="./assets/planets.png" class="project_screenshot"></img>
+			<a class="fancybox" rel="planetsGallery" href="./assets/planets2.png">
+				<img src="./assets/planets2.png" class="project_screenshot"></img>
 			</a>
+			
+			<a class="fancybox" rel="planetsGallery" href="./assets/planets1.png">
+				<img src="./assets/planets1.png" style="display:none"></img>
+			</a>
+			
 			<p class="project_description">
 				Sed imperdiet euismod semper. Nulla congue est id felis ultricies, vel dapibus lacus venenatis. 
 				Donec at odio tortor. Nunc eu purus eget est convallis rutrum. Duis urna nibh, vestibulum ac iaculis a, 
@@ -82,13 +87,77 @@
 			</p>
 		</div>
 		
+		
+		<div class="project">
+			<div class="separator"><!----></div>
+			
+			<div class="project_header">
+
+				<a href="https://github.com/ALSchwalm/GeneticImages" target="tab" class="project_link">Github</a>
+				
+				<h3>Genetic Images</h3>
+			</div>
+			
+			<div class="clear"></div>
+			
+			<a class="fancybox" rel="geneticGallery" title="Images created by the program." href="./assets/genetic1.png">
+				<img src="./assets/genetic1.png"  class="project_screenshot"></img>
+			</a>
+			
+			<a class="fancybox" rel="geneticGallery" title="Images created by the program." href="./assets/genetic2.png">
+				<img src="./assets/genetic2.png" style="display:none"></img>
+			</a>
+			
+			<a class="fancybox" rel="geneticGallery" title="Images created by the program." href="./assets/genetic3.png">
+				<img src="./assets/genetic3.png" style="display:none"></img>
+			</a>
+			
+			<a class="fancybox" rel="geneticGallery" title="Images created by the program." href="./assets/genetic4.png">
+				<img src="./assets/genetic4.png" style="display:none"></img>
+			</a>
+			
+			<p class="project_description">
+				Etiam dignissim varius turpis at viverra. Praesent lacinia erat et augue ornare, ac egestas magna 
+				euismod. Sed eu odio quis nisl faucibus fringilla. Suspendisse potenti. Pellentesque habitant morbi 
+				tristique senectus et netus et malesuada fames ac turpis egestas. Ut sit amet enim nec erat accumsan 
+				condimentum. In sit amet mollis arcu, vel tincidunt turpis.
+			</p>
+		</div>
+		
+		<div class="project">
+			<div class="separator"><!----></div>
+			
+			<div class="project_header">
+
+				<a href="https://github.com/ALSchwalm/Conway" target="tab" class="project_link">Github</a>
+				
+				<h3>Conway's Game of Life</h3>
+			</div>
+			
+			<div class="clear"></div>
+			
+			<a class="fancybox" href="./assets/conway1.png">
+				<img src="./assets/conway1.png" class="project_screenshot"></img>
+			</a>
+			<p class="project_description">
+				Morbi sollicitudin gravida erat, a tempus mauris venenatis at. Nunc ac laoreet nisi. 
+				Suspendisse imperdiet pharetra tellus sit amet viverra. Curabitur eleifend scelerisque nisi, 
+				quis lobortis nunc iaculis et. Vestibulum ac metus massa. Sed eu ligula a arcu bibendum lacinia 
+				in eu ipsum. Ut eleifend diam eget accumsan dictum. Integer congue nulla a justo eleifend tempus. 
+				Nulla vestibulum molestie commodo. Pellentesque vitae metus sodales, commodo nulla quis, auctor tellus. 
+				Donec ac eleifend felis, ut sagittis nisl. Nam fringilla rutrum condimentum. Aliquam posuere vel
+				sapien nec fringilla.
+			</p>
+		</div>
+		
+		
 		<footer>
 			<p>
 				Contact me at <a href="mailto:adamschwalm@gmail.com">adamschwalm@gmail.com</a><br>
 				This website is hosted by <a href="https://github.com/" target="tab">Github.com</a><br>
 				&copy;2013 Adam Schwalm<br>
 			</p>
-		</footer>			
+		</footer>		
 	</body>
 	<script>
 	
@@ -96,9 +165,14 @@
 		$(".fancybox").fancybox({
 			openEffect	: 'none',
 			closeEffect	: 'none',
+			prevEffect : 'fade',
+			nextEffect : 'fade',
+			afterLoad : function() {
+				this.title = 'Image ' + (this.index + 1) + ' of ' + this.group.length + (this.title ? ' - ' + this.title : '');
+			},
 			    helpers : {
 					title : {
-							type : 'inside'
+							type : 'over'
 					},
 					overlay : {
 						locked : false
