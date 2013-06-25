@@ -8,7 +8,7 @@ body {
 	font-weight:300;
 	width:840px;
 	margin:0 auto;
-	background-image: url('../assets/binding_dark.png');
+	background: #000 url('../assets/binding_dark.png');
 }
 
 .title_link {
