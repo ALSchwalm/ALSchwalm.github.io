@@ -34,7 +34,7 @@ body {
 
 .project_screenshot {
 	width: 40%;
-	height: 40%;
+	height: auto;
 	float: left;
 }
 
