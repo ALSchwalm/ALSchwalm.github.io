@@ -41,7 +41,7 @@ body {
 .project_description {
 	float:left;
 	width: 55%;
-	margin-left: 10px;
+	margin-left: 20px;
 	margin-top: 0px;
 }
 
@@ -72,18 +72,32 @@ body {
 	text-decoration: underline;
 }
 
+.section_separator {
+	height: 1px;
+	width: 70%;
+	display: block;
+	background: #BBB;
+	border: 0;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 13px;
+	margin-top: 13px;
+}
+
 .separator {
 	height: 1px;
 	width: 90%;
 	display: block;
-	background-color: #BBB;
+	background: #BBB;
+	border: 0;
 	margin-left: auto;
 	margin-right: auto;
-	margin-bottom: 23px;
-	margin-top: 28px;
+	margin-bottom: 30px;
+	margin-top: 30px;
 }
 
-.vertical_seperator {
+
+.vertical_separator {
 	float: right;
 	font-size: 15px;
 	margin-left: 5px;
@@ -114,12 +128,14 @@ h2 {
 	font-size:21px;
 	-webkit-margin-after:5px;
 	margin-bottom: 5px;
+	text-align:center;
 }
 
 h3 {
 	font-size:19px;
 	-webkit-margin-before:0em;
 	-webkit-margin-after:0em;
+	font:20px Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 footer {
