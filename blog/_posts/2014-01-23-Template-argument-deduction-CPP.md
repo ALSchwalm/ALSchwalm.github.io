@@ -48,7 +48,7 @@ sample
 {% highlight c++ %}
 
 template<typename T, size_t size>
-void locate(const std::array<T, size>& arr, T t){...}
+void locate(const std::array<T, size>& arr, const T& t){...}
 ...
 std::array<int, 3> arr{1, 2, 3};
 locate(arr, 2);
