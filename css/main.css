@@ -13,8 +13,9 @@
 html, body { height: 100%; }
 
 body {
-  background-color: #FFF;
+  background-color: #000;
   font: 13.34px Helvetica, Arial, sans-serif;
+  background: #000 url('../assets/binding_dark.png');
   font-size: small;
   text-align: center;
 }
@@ -45,7 +46,8 @@ a:visited { color: #a0a; }
 
 .posts span {
   color: #aaa;
-  font-family: Monaco, "Courier New", monospace;
+  /*font-family: Monaco, "Courier New", monospace;*/
+  font:17px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 80%;
 }
 
