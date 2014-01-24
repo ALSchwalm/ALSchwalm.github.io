@@ -16,7 +16,7 @@ theme:
   # "Hi, I'm _______"
   name: Adam Schwalm
   email: alschwalm@gmail.com
-  tagline: "weak opinions, strongly held"
+  tagline: "Let's talk about programming"
 
   # Toggle "Postings are my own" disclaimer in footer
   show_disclaimer: false

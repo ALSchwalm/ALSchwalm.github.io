@@ -115,6 +115,11 @@ nav hr {
   border-width: 1px 0 0;
 }
 
+#quip {
+  font-size: 14px;
+  text-align: center;
+}
+
 #social {
   margin-bottom: 10px;
   font-size: 13px;
