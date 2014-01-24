@@ -143,6 +143,10 @@ nav hr {
   border: none;
 }
 
+#post p {
+  font-weight: 100;
+}
+
 .sidebar {
   padding-top: 25px;
   font-family: "open sans", sans-serif;
