@@ -136,21 +136,21 @@ Namely, the following will not compile:
 {% highlight c++ %}
 
 template<typename funcType, typename argType>
-void functionTakingFuncPointer(funcType f, argType arg) {
+void callFunc(funcType f, argType arg) {
     f(arg);
 }
 
 template<typename T>
 void func(T t){...}
 
-functionTakingFuncPointer(func, 10); //compiler error
+callFunc(func, 10); //compiler error
 
 {% endhighlight %}
 
 This fails because `func` in the last line is a shorthand for `&func`, and it is
 not possible (or meaningful) to take the address of a template function, only of its
-specializations. So, the following will work `functionTakingFuncPointer(func<int>,
-10)`, but we have again reverted to explicitly writing the template parameters.
+specializations. So, the following will work `callFunc(func<int>,10)`, but we have
+again reverted to explicitly writing the template parameters.
 
 But fear not, this problem is not insurmountable.  While we were saved before by
 using a function to create class instances, perhaps now classes will return the
@@ -168,9 +168,9 @@ struct Func {
 {% endhighlight %}
 
 We use the class's `operator()` as a template function, but we can create and pass
-an instance of Func simply by calling `functionTakingFuncPointer(Func{}, 10)`. A very
-similar approach to the above appears in the C++14 augmentation of `std::less` and
-`std::greater` available [here][paper] authored by the great Stephan T. Lavavej.
+an instance of Func simply by calling `callFunc(Func{}, 10)`. A very similar approach
+to the above appears in the C++14 augmentation of `std::less` and `std::greater`
+available [here][paper] authored by the great Stephan T. Lavavej.
 
 [paper]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3421.htm
 
