@@ -18,7 +18,7 @@ specialized from the types of the arguments passed to the function. For example:
 {% highlight c++ %}
 
 template<typename T>
-T transmogrify(T){...}
+T transmogrify(T t){...}
 
 {% endhighlight %}
 
@@ -32,24 +32,34 @@ The utility of this cannot be overstated. As boring, fallible humans, we are lik
 to make mistakes. And, if you're anything like me, you probably tend to make quite a
 few.
 
+Now suppose I, thinking myself above the petty knowledge of the compiler, specify
+the type of `T` manually by calling `transmogrify<std::string>("cats")`. This will
+compile and (let us suppose) work as intended. But what would happen if we let the
+compiler deduce the type? The type of a string literal in C++ is `const char[]`, so
+the function specialization would look like `transmogrify<const char[]>(const
+char[])`, and calling it would look like `transmogrify("cats")`. The important thing
+to note here is that a call to the latter function does not create a pointless
+`std::string`. It is also shorter and (in my opinion) cleaner. Indeed, the caller
+need not even know that the function is a template function.
+
+This deduction also works for template class arguments. That is, in the following
+sample
+
 {% highlight c++ %}
 
-template<typename T>
-void whoops(const T&){...}
+template<typename T, size_t size>
+void locate(const std::array<T, size>& arr, T t){...}
+...
+std::array<int, 3> arr{1, 2, 3};
+locate(arr, 2);
 
 {% endhighlight %}
 
-The above signature looks a lot like the first one. The notable difference being that
-this function accepts its arguments by `const&`. Now suppose I, thinking myself above
-the petty knowledge of the compiler, specify the type of `T` manually by calling
-`whoops<std::string>("cats")`. This will compile and (let us suppose) work as
-intended. But what would happen if we let the compiler deduce the type? The type of a
-string literal in C++ is `const char[]`, so the function specialization would look
-like `whoops<const char[]>(const char[] &)`, and calling it would look like
-`whoops("cats")`. The important thing to note here is that a call to the latter
-function does not create a pointless `std::string`. It is also shorter and (in my
-opinion) cleaner. Indeed, the caller need not even know that the function is a
-template function.
+`T` is deduced to be of type `int`, and `size` is deduced to have value `3`. So again
+the deduction works as expected. Note, however, that the types must be exactly the
+same. It is not sufficient for the types to simply be convertable to one another. So
+`locate(arr, 'c')` will fail to compile, even though `char` is convertable to `int`,
+because the compiler cannot deduce a consistent type for `T`.
 
 ---
 
@@ -81,7 +91,7 @@ if this were true, it could lead to some very confusing results.
 template<typename T>
 struct Foo {
     Foo(T t){...}
-    Foo<T> operator=(const Foo<T>&){...}
+    Foo<T> operator=(const Foo<T>& f){...}
 };
 
 void main() {
@@ -142,7 +152,7 @@ void callFunc(funcType f, argType arg) {
 
 template<typename T>
 void func(T t){...}
-
+...
 callFunc(func, 10); //compiler error
 
 {% endhighlight %}
