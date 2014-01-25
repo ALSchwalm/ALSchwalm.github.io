@@ -48,7 +48,7 @@ sample
 {% highlight c++ %}
 
 template<typename T, size_t size>
-void locate(const std::array<T, size>& arr, const T& t){...}
+void locate(const std::array<T, size>& arr, const T& item){...}
 ...
 std::array<int, 3> arr{1, 2, 3};
 locate(arr, 2);
@@ -131,7 +131,7 @@ At first glance this may appear to be longer than specifying the type manually.
 Leaving aside the possibility of human error, it is often the case that the
 type would be cumbersome to write by hand. I certainly wouldn't want to have to write
 `std::vector<std::pair<int, float>>` all over the place (yes creating an alias would
-mitigate this problem somewhat, by why make one if you don't need to).
+mitigate this problem somewhat, but why make one if you don't need to).
 
 The astute reader may notice a familiarity with this pattern already. The STL makes
 use of it at several points with `make_pair`, `make_shared` and others.
