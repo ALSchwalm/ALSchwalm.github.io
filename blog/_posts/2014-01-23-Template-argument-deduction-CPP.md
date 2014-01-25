@@ -10,8 +10,8 @@ deduction in C++ are varied and somewhat complex. I will not attempt to describe
 them in their entirety in the confines of this short post. I leave that cumbersome
 task to more eloquent and knowledgeable programmers.
 
-That being said, template argument deduction is a very useful feature of the language
-which has an unfortunate tendency to be underutilized. For the unfamiliar,
+That being said, template argument deduction, which has an unfortunate tendency to
+be underutilized, is a very useful feature of the language. For the unfamiliar,
 C++ function templates have the ability to determine the types upon which they are
 specialized from the types of the arguments passed to the function. For example:
 
@@ -48,10 +48,10 @@ sample
 {% highlight c++ %}
 
 template<typename T, size_t size>
-void locate(const std::array<T, size>& arr, const T& item){...}
+size_t locate(const std::array<T, size>& arr, const T& item){...}
 ...
 std::array<int, 3> arr{1, 2, 3};
-locate(arr, 2);
+auto index = locate(arr, 2);
 
 {% endhighlight %}
 
