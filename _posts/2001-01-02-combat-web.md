@@ -8,6 +8,7 @@ images:
 - combat1.png
 image-title: 
 image-gallery: combatGallery
+play: http://combatweb.no-ip.org/
 categories:
 - project
 ---

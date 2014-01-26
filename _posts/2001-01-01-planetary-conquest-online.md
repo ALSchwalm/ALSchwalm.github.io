@@ -8,6 +8,7 @@ images:
 - planets_web.png
 image-title: A shot of the game in action
 image-gallery: planetsOnlineGallery
+play: http://alschwalm.com/PlanetsWeb/
 categories:
 - project
 ---

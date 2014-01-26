@@ -330,6 +330,8 @@
 
 /* #Projects
 ================================================== */
+        .project {clear:both;}
+
         .project-header .bar {float: right;}
         .project-header .bar a {color: black;}
         
@@ -337,14 +339,12 @@
         .detail-button:hover {text-decoration: underline;}
         
         .project-screenshot {
-            max-width: 230px;
-            max-height: 180px;
+            width: 40%;
             float: left;
         }
         .project-description {
-            margin-left: 20px;
-            float: left;
-            width: 60%;
+            float: right;
+            width: 55%;
         }
 
         .project-details {margin-bottom: 10px;}
@@ -355,10 +355,9 @@
         }
 
         .project-break {
-            margin-top:220px;
-            display: block;
-            clear:both;
-            height: 1px;
+            margin-top:20px;
+            width: 100%;
+            float: left;
         }
 }
         

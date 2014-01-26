@@ -15,7 +15,7 @@ title: Projects
     genetic programming to high performance computing. I will do my best to keep this page up-to-date with my latest work, but my 
     Github is guaranteed to be current.
   </p>
-  
+  <br>
   <h2>Open Source Projects</h2>
   <ul id="blog-projects">
     <hr/>
@@ -24,6 +24,9 @@ title: Projects
       <div class="project-header">
         
         <div class="bar">
+          {% if project.play %}
+          <a href={{ project.play }}>play</a> |
+          {% endif %}
           <span class="project-link detail-button">details</span> |
           <a href={{ project.link }}>Github</a>
           
@@ -53,7 +56,13 @@ title: Projects
         </div>
       </div>
     </div>
+
+    {% if forloop.index < forloop.length %}
     <hr class="project-break">
+    {% else %}
+    <hr class="project-break" style="visibility:hidden;">
+    {% endif %}
+    
     {% endfor %}
   </ul>
 </div>
