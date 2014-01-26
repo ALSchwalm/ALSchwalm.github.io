@@ -1,291 +1,93 @@
-<!DOCTYPE html>
+---
+layout: default
+title: Projects
+---
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.pack.js"></script>
 
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<title>Adam Schwalm</title>
-		<link rel="stylesheet" href="./css/styles.css" />
-		<link rel="stylesheet" type="text/css" href="./css/jquery.fancybox.css" media="screen" />
-		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-		<script type="text/javascript" src="./js/jquery.fancybox.pack.js"></script>
-	</head>
-	<body>
-		<header>
-			<h1>alschwalm</h1>
-			<a href="https://github.com/ALSchwalm?tab=repositories" target="tab" class="title_link">Github</a>
-			<a href="blog/" target="tab" class="title_link">Blog</a>
-		</header>
+<div id="home">
 
-		<h2>About</h2>
-		<div class="section_separator"><!----></div>
-		<p>
-			This is a small site dedicated to projects developed by me, Adam Schwalm. I was born in Jackson, Mississippi in 1992. 
-			I'm currently attending Mississippi State University studying Software Engineering and Computer Science. My interests range from
-			genetic programming to high performance computing. I will do my best to keep this page up-to-date with my latest work, but my 
-			Github is guaranteed to be current.
-			
-		</p>
-		<br>
-		<h2>Open Source Projects</h2>
-		<div class="section_separator"><!----></div>
-		<div class="project">
-			
-			<div class="project_header">
-				<a href="https://github.com/ALSchwalm/PlanetsWeb" target="tab" class="project_link">Github</a>
-				
-				<span class="vertical_separator"> | </span>
-				
-				<span class="project_link detail_button">details</span>
-				
-				<span class="vertical_separator"> | </span>
-				
-				<a href="http://alschwalm.com/PlanetsWeb/" target="tab" class="project_link">play</a>
-				
-				<h3>Planetary Conquest Online</h3><!--Title comes after link to fix strange IE behavior with float right-->
-			</div>
-			
-			<div class="clear"></div>
-			
-			<a class="fancybox" href="./assets/planets_web.png" title="A shot of the game in action">
-				<img src="./assets/planets_web.png" class="project_screenshot"></img>
-			</a>
-			
-			<div class="project_description">
+  <h2> About </h2>
+  <hr/>
+  <p>
+    This is a small site dedicated to projects developed by me, Adam Schwalm. I was born in Jackson, Mississippi in 1992. 
+    I'm currently attending Mississippi State University studying Software Engineering and Computer Science. My interests range from
+    genetic programming to high performance computing. I will do my best to keep this page up-to-date with my latest work, but my 
+    Github is guaranteed to be current.
+  </p>
+  
+  <h2>Open Source Projects</h2>
+  <ul id="blog-projects">
+    <hr/>
+    {% for project in site.categories.project %}
+    <div class="project">
+      <div class="project-header">
+        
+        <div class="bar">
+          <span class="project-link detail-button">details</span> |
+          <a href={{ project.link }}>Github</a>
+          
+        </div>
+        
+        <h3>{{ project.title }}</h3>
+      </div>
 
-					This is a real-time strategy game written in Javascript. The objective of the game is to capture your opponent's
-					"planets" while defending your own. The game uses a heavily modified version of the <a href="http://fabricjs.com/">Fabric.js</a> library for rendering.
+      {% assign first-image = true %}
+      {% for image in project.images %}
+        <a class="fancybox" rel="{{ project.image-gallery }}" title="{{ project.image-title }}" href="/assets/{{ image }}">
+          {% if first-image %}
+              <img src="/assets/{{ image }}" class="project-screenshot"></img>
+              {% assign first-image = false %}
+          {% else %}
+              <img src="/assets/{{ image }}" style="display:none"></img>
+          {% endif %}
+        </a>
+      {% endfor %}
 
-				<div class="project_details">
-					<br>Last Updated: 6/22/2013
-					<br>Status: Completed
-				</div>
-			</div>
-		</div>
+      <div class="project-description">
+        {{ project.content }}
 
-		<div class="project">
-			<div class="separator"><!----></div>
-			
-			<div class="project_header">
-				
-				<a href="https://github.com/ALSchwalm/devolve" target="tab" class="project_link">Github</a>
-				
-				<span class="vertical_separator"> | </span>
-				
-				<span class="project_link detail_button">details</span>
+        <div class="project-details">
+          <br>Last Updated: {{ project.updated }}
+          <br>Status: {{ project.status }}
+        </div>
+      </div>
+    </div>
+    <hr class="project-break">
+    {% endfor %}
+  </ul>
+</div>
 
-				<h3>devolve</h3>
-			</div>
-			
-			<div class="clear"></div>
-			
-			<a class="fancybox" rel="devolveGallery" href="./assets/devolve.png" title="Algorithm to generate consecutive primes gown by devolve">
-				<img src="./assets/devolve.png" class="project_screenshot"></img>
-			</a>
+<script>
 
-			<div class="project_description">
-
-                          devolve is a genetic programming library written in the D programming language.
-                          The core goal of the project is to create a flexible, easy-to-use interface while
-                          still maintaining performance. Inspiration for some of the interface design was
-                          originally taken from <a href="http://pyevolve.sourceforge.net/">Pyevolve</a>.
-
-				<div class="project_details">
-					<br>Last updated: 1/8/2014
-					<br>Project Status: In Progress
-				</div>
-			</div>
-		</div>
-
-		<div class="project">
-			<div class="separator"><!----></div>
-			
-			<div class="project_header">
-				
-				<a href="https://github.com/ALSchwalm/Planets" target="tab" class="project_link">Github</a>
-				
-				<span class="vertical_separator"> | </span>
-				
-				<span class="project_link detail_button">details</span>
-
-				<h3>Planetary Conquest</h3>
-			</div>
-			
-			<div class="clear"></div>
-			
-			<a class="fancybox" rel="planetsGallery" href="./assets/planets2.png">
-				<img src="./assets/planets2.png" class="project_screenshot"></img>
-			</a>
-			
-			<a class="fancybox" rel="planetsGallery" href="./assets/planets1.png">
-				<img src="./assets/planets1.png" style="display:none"></img>
-			</a>
-			
-			<div class="project_description">
-
-					Planetary Conquest is a console based version of the above game. It is written in C++ and uses 
-					<a href="https://www.gnu.org/software/ncurses/">ncurses</a>/<a href="http://pdcurses.sourceforge.net/">pdcurses</a>
-					for output. It is cross-platform and can be built using scons. 
-					
-				<div class="project_details">
-					<br>Last updated: 3/11/2013
-					<br>Project Status: Completed
-				</div>
-			</div>
-		</div>
-		
-		<div class="project">
-			<div class="separator"><!----></div>
-			
-			<div class="project_header">
-
-				<a href="https://github.com/ALSchwalm/CombatWeb" target="tab" class="project_link">Github</a>
-				
-				<span class="vertical_separator"> | </span>
-				
-				<span class="project_link detail_button">details</span>
-				
-				<span class="vertical_separator"> | </span>
-				
-				<a href="http://combatweb.no-ip.org" target="tab" class="project_link">play</a>
-				
-				<h3>Combat Web</h3>
-			</div>
-			
-			<div class="clear"></div>
-			
-			<a class="fancybox" rel="combatGallery" href="./assets/combat1.png">
-				<img src="./assets/combat1.png" class="project_screenshot"></img>
-			</a>
-			
-			<div class="project_description">
-
-					A WebGL based first-person shooter. The game uses <a href="http://threejs.org/">three.js</a> for 
-					rendering and <a href="http://cannonjs.org/">Cannon.js</a> for physics. A <a href="http://nodejs.org/">node.js</a> 
-					backend uses web sockets to connect the players to each other
-			
-				<div class="project_details">
-					<br>Last Updated: 7/02/2013
-					<br>Status: In Progress
-				</div>
-			</div>
-		</div>
-		
-		<div class="project">
-			<div class="separator"><!----></div>
-			
-			<div class="project_header">
-
-				<a href="https://github.com/ALSchwalm/GeneticImages" target="tab" class="project_link">Github</a>
-				
-				<span class="vertical_separator"> | </span>
-				
-				<span class="project_link detail_button">details</span>
-				
-				<h3>Genetic Images</h3>
-			</div>
-			
-			<div class="clear"></div>
-			
-			<a class="fancybox" rel="geneticGallery" title="Images created by the program." href="./assets/genetic1.png">
-				<img src="./assets/genetic1.png"  class="project_screenshot"></img>
-			</a>
-			
-			<a class="fancybox" rel="geneticGallery" title="Images created by the program." href="./assets/genetic2.png">
-				<img src="./assets/genetic2.png" style="display:none"></img>
-			</a>
-			
-			<a class="fancybox" rel="geneticGallery" title="Images created by the program." href="./assets/genetic3.png">
-				<img src="./assets/genetic3.png" style="display:none"></img>
-			</a>
-			
-			<div class="project_description">
-
-					This is a python script which uses <a href="http://pyevolve.sourceforge.net/0_6rc1/">pyEvolve</a>(v0.6+) to grow images. The 'alleles' in the script are functions of
-					of the X and Y coordinates of a point. The resultant genome is the tree of those functions. That fuction
-					is then applied to every point in sequence returning an RGB value for that point.
-			
-				<div class="project_details">
-					<br>Last Updated: 6/11/2013
-					<br>Status: Completed
-				</div>
-			</div>
-		</div>
-		
-		<div class="project">
-			<div class="separator"><!----></div>
-			
-			<div class="project_header">
-
-				<a href="https://github.com/ALSchwalm/Conway" target="tab" class="project_link">Github</a>
-				
-				<span class="vertical_separator"> | </span>
-				
-				<span class="project_link detail_button">details</span>
-				
-				<h3>Conway's Game of Life</h3>
-			</div>
-			
-			<div class="clear"></div>
-			
-			<a class="fancybox" href="./assets/conway1.png">
-				<img src="./assets/conway1.png" class="project_screenshot"></img>
-			</a>
-			<div class="project_description">
-
-					A simple C++ implementation of Conway's Game of Life. The project uses SDL for the output.
-					
-					
-					<div class="project_details">
-						<br>Last Updated: 6/10/2013
-						<br>Status: Completed
-					</div>
-			</div>					
-		</div>
-		
-		<footer>
-			<p>
-				Contact me at <a href="mailto:adamschwalm@gmail.com">adamschwalm@gmail.com</a><br>
-				This website is hosted by <a href="https://github.com/" target="tab">Github.com</a><br>
-				&copy;2013 Adam Schwalm<br>
-			</p>
-		</footer>		
-	</body>
-	<script>
-	
-	$(document).ready(function() {
-		$(".fancybox").fancybox({
-			openEffect	: 'none',
-			closeEffect	: 'none',
-			prevEffect 	: 'none',
-			nextEffect 	: 'none',
-			afterLoad : function() {
-				this.title = 'Image ' + (this.index + 1) + ' of ' 
-					+ this.group.length + (this.title ? ' - ' + this.title : '');
-			},
-			    helpers : {
-					title : {
-							type : 'over'
-					},
-					overlay : {
-						locked : false
-					}
-				}
-		});
-	});
-	
-	$('.detail_button').click(function() {
-
-		$(this).parent().parent().find(".project_details").toggle('medium');
-		
-		if ($(this).text() == "details") {
-			$(this).text("hide");
-		}
-		else {
-			$(this).text("details");
-		}
-	});
-	
-	</script>
-	
-</html>
-
+  $(document).ready(function() {
+      $(".fancybox").fancybox({
+          openEffect	: 'none',
+          closeEffect	: 'none',
+          prevEffect 	: 'none',
+          nextEffect 	: 'none',
+          afterLoad : function() {
+              this.title = 'Image ' + (this.index + 1) + ' of ' 
+                           + this.group.length + (this.title ? ' - ' + this.title : '');
+          },
+          helpers : {
+              title : {
+                  type : 'over'
+              },
+              overlay : {
+                  locked : false
+              }
+         }
+     });
+  });
+  
+  $('.detail-button').click(function() {
+      $(this).parent().parent().parent().find(".project-details").toggle('medium');
+          if ($(this).text() == "details") {
+              $(this).text("hide");
+          }
+          else {
+              $(this).text("details");
+          }
+      });
+</script>

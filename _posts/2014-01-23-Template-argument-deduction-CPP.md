@@ -2,7 +2,8 @@
 layout: post
 title: Getting the most from Template Argument Deduction in C++
 categories:
-- C++ templates
+- blog
+tags: [C++, templates]
 ---
 
 Let me preface this post by saying that the rules regarding template argument

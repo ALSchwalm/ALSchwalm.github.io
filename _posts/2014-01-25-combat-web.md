@@ -1,0 +1,21 @@
+---
+layout: project
+title: Combat Web
+link: https://github.com/ALSchwalm/combatweb
+status: In progress
+updated: 7/02/2013
+images:
+- combat1.png
+image-title: 
+image-gallery: combatGallery
+categories:
+- project
+tags: web, javascript
+---
+
+A WebGL based first-person shooter. The game uses [three.js][three] for rendering and
+[Cannon.js][cannon] for physics. A node.js backend uses web sockets to connect the
+players to each other
+
+[three]: http://threejs.org/
+[cannon]: http://cannonjs.org/

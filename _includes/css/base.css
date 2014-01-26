@@ -20,6 +20,7 @@
 	#Buttons
 	#Tabs
 	#Forms
+        #Posts
 	#Misc */
 
 
@@ -326,6 +327,41 @@
 		font-size: 13px;
 		color: #444; }
 
+
+/* #Projects
+================================================== */
+        .project-header .bar {float: right;}
+        .project-header .bar a {color: black;}
+        
+        .project-details {display: none;}
+        .detail-button:hover {text-decoration: underline;}
+        
+        .project-screenshot {
+            max-width: 230px;
+            max-height: 180px;
+            float: left;
+        }
+        .project-description {
+            margin-left: 20px;
+            float: left;
+            width: 60%;
+        }
+
+        .project-details {margin-bottom: 10px;}
+
+        .detail-button {
+	    cursor: hand; 
+	    cursor: pointer;
+        }
+
+        .project-break {
+            margin-top:220px;
+            display: block;
+            clear:both;
+            height: 1px;
+        }
+}
+        
 /* #Misc
 ================================================== */
 	.remove-bottom { margin-bottom: 0 !important; }
