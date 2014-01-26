@@ -11,7 +11,6 @@ image-title: A shot of the game in action
 image-gallery: planetsGallery
 categories:
 - project
-tags: C++, SDL
 ---
 
 Planetary Conquest is a console based version of the above game. It is written in C++

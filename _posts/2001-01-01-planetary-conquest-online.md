@@ -10,7 +10,6 @@ image-title: A shot of the game in action
 image-gallery: planetsOnlineGallery
 categories:
 - project
-tags: web, javascript
 ---
 
 

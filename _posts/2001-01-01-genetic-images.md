@@ -12,7 +12,6 @@ image-title: Images created by the program
 image-gallery: geneticGallery
 categories:
 - project
-tags: C++, genetic
 ---
 
 This is a python script which uses [pyEvolve(v0.6+)][evolve] to grow images. The

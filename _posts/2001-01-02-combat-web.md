@@ -10,7 +10,6 @@ image-title:
 image-gallery: combatGallery
 categories:
 - project
-tags: web, javascript
 ---
 
 A WebGL based first-person shooter. The game uses [three.js][three] for rendering and
