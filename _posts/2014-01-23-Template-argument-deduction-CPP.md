@@ -36,9 +36,9 @@ few.
 Now suppose I, thinking myself above the petty knowledge of the compiler, specify
 the type of `T` manually by calling `transmogrify<std::string>("cats")`. This will
 compile and (let us suppose) work as intended. But what would happen if we let the
-compiler deduce the type? The type of a string literal in C++ is `const char[]`, so
-the function specialization would look like `transmogrify<const char[]>(const
-char[])`, and calling it would look like `transmogrify("cats")`. The important thing
+compiler deduce the type? The type of a string literal in C++ is `const char[5]`, so
+the function specialization would look like `transmogrify<const char[5]>(const
+char*)`, and calling it would look like `transmogrify("cats")`. The important thing
 to note here is that a call to the latter function does not create a pointless
 `std::string`. It is also shorter and (in my opinion) cleaner. Indeed, the caller
 need not even know that the function is a template function.
@@ -48,18 +48,18 @@ sample
 
 {% highlight c++ %}
 
-template<typename T, size_t size>
-size_t locate(const std::array<T, size>& arr, const T& item){...}
+template<typename T, size_t Size>
+size_t locate(const std::array<T, Size>& arr, const T& item){...}
 ...
 std::array<int, 3> arr{1, 2, 3};
 auto index = locate(arr, 2);
 
 {% endhighlight %}
 
-`T` is deduced to be of type `int`, and `size` is deduced to have value `3`. So again
+`T` is deduced to be of type `int`, and `Size` is deduced to have value `3`. So again
 the deduction works as expected. Note, however, that the types must be exactly the
-same. It is not sufficient for the types to simply be convertable to one another. So
-`locate(arr, 'c')` will fail to compile, even though `char` is convertable to `int`,
+same. It is not sufficient for the types to simply be convertible to one another. So
+`locate(arr, 'c')` will fail to compile, even though `char` is convertible to `int`,
 because the compiler cannot deduce a consistent type for `T`.
 
 ---
@@ -92,21 +92,22 @@ if this were true, it could lead to some very confusing results.
 template<typename T>
 struct Foo {
     Foo(T t){...}
-    Foo<T> operator=(const Foo<T>& f){...}
+    Foo& operator=(const Foo& f){...}
 };
 
 void main() {
     Foo f1{10};
     Foo f2{1.0};
-    f1 = f2 //fails to compile
+    f1 = f2; //would fail to compile
 }
 
 {% endhighlight %}
 
-The above fails to compile because `f1` would be deduced to have type `Foo<int>`
-while `f2` would be deduced to have type `Foo<double>`. As these are fundamentally
-distinct types, there is no conversion from `Foo<double>` to `Foo<int>`, and so
-there is no way to call `f1`'s `operator=` with `f2`.
+With our hypothetical "class template argument deduction", the above would fail to
+compile because `f1` would be deduced to have type `Foo<int>` while `f2` would be
+deduced to have type `Foo<double>`. As these are fundamentally distinct types, there
+is no conversion from `Foo<double>` to `Foo<int>`, and so there would be no way
+to call `f1`'s `operator=` with `f2`.
 
 _One should note, that there are other good arguments against this behavior arising
 from the usage of template class specialization which are beyond the scope of this
@@ -120,7 +121,7 @@ the type of an argument. This may be easily achieved by creating a free function
 {% highlight c++ %}
 
 template<typename T>
-Foo make_foo(const T& t) {
+Foo<T> make_foo(const T& t) {
     return Foo<T>{t};
 }
 ...
@@ -135,7 +136,7 @@ type would be cumbersome to write by hand. I certainly wouldn't want to have to 
 mitigate this problem somewhat, but why make one if you don't need to).
 
 The astute reader may notice a familiarity with this pattern already. The STL makes
-use of it at several points with `make_pair`, `make_shared` and others.
+use of it at several points with `make_pair`, `make_tuple` and others.
 
 ---
 
@@ -189,7 +190,8 @@ available [here][paper] authored by the great Stephan T. Lavavej.
 
 Using the tools above should allow the reader to exploit template argument deduction
 in most common circumstances. The complete rules of TAD may, of course be found in
-14.8.2 of the latest working draft of the standard available [here][isocpp].
+N3797 14.8.2 \[temp.deduct\] of the standard. (a copy of the latest working draft is
+available [here][isocpp])
 
 [isocpp]: http://www.isocpp.org
 
