@@ -95,7 +95,7 @@ struct Foo {
     Foo& operator=(const Foo& f){...}
 };
 
-void main() {
+int main() {
     Foo f1{10};
     Foo f2{1.0};
     f1 = f2; //would fail to compile
