@@ -36,7 +36,7 @@ few.
 Now suppose I, thinking myself above the petty knowledge of the compiler, specify
 the type of `T` manually by calling `transmogrify<std::string>("cats")`. This will
 compile and (let us suppose) work as intended. But what would happen if we let the
-compiler deduce the type? The type of a string literal in C++ is `const char[5]`, so
+compiler deduce the type? The type of the string literal "cats"  in C++ is `const char[5]`, so
 the function specialization would look like `transmogrify<const char[5]>(const
 char*)`, and calling it would look like `transmogrify("cats")`. The important thing
 to note here is that a call to the latter function does not create a pointless
