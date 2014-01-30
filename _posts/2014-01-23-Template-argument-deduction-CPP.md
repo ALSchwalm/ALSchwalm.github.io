@@ -160,9 +160,14 @@ callFunc(func, 10); //compiler error
 {% endhighlight %}
 
 This fails because `func` in the last line is a shorthand for `&func`, and it is
-not possible (or meaningful) to take the address of a template function, only of its
+not possible to take the address of a template function\*, only of its
 specializations. So, the following will work `callFunc(func<int>,10)`, but we have
 again reverted to explicitly writing the template parameters.
+
+_\*It is possible to take the address of a template function if the context
+provides an unambiguous, necessary specialization. For example, if we passed `func` to
+a function with a signature `foo(void (*)(int))`, the type of `T` will be deduced to
+be of type `int`. Unfortunately this property does not help us here._
 
 But fear not, this problem is not insurmountable.  While we were saved before by
 using a function to create class instances, perhaps now classes will return the
