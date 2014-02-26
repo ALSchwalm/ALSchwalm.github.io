@@ -1,7 +1,8 @@
 ---
 layout: project
 title: Combat Web
-link: https://github.com/ALSchwalm/combatweb
+pid: combatWeb
+link: https://github.com/ALSchwalm/CombatWeb
 status: In progress
 updated: 7/02/2013
 images:

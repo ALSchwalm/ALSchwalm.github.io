@@ -1,6 +1,7 @@
 ---
 layout: project
 title: Planetary Conquest Online
+pid: planetsWeb
 link: https://github.com/ALSchwalm/PlanetsWeb
 status: completed
 updated: 6/22/2013

@@ -20,7 +20,7 @@ title: Projects
   <ul id="blog-projects">
     <hr/>
     {% for project in site.categories.project %}
-    <div class="project">
+    <div class="project" id="{{ project.pid }}">
       <div class="project-header">
         
         <div class="bar">
@@ -89,7 +89,26 @@ title: Projects
          }
      });
   });
-  
+
+ $(document).ready(function() {
+   $.ajax({
+     url: "https://api.github.com/users/alschwalm/repos",
+     dataType: "json",
+     success: function (returndata)
+     {
+       {% for project in site.categories.project %}
+       var repo = $.grep(returndata, function(repo){return repo.svn_url == "{{ project.link }}";})[0]
+       if (repo) {
+         var date = new Date(Date.parse(repo.updated_at));
+         date = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
+         var text = "Status: {{ project.status }}<br>Last Updated: " + date + "<br>";
+         $('#{{ project.pid }}').find('.project-details').html(text);
+       }
+       {% endfor %}
+     }  
+   })
+ });
+
   $('.detail-button').click(function() {
       $(this).parent().parent().parent().find(".project-details").toggle('medium');
           if ($(this).text() == "details") {

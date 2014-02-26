@@ -1,6 +1,7 @@
 ---
 layout: project
 title: Genetic Images
+pid: geneticImages
 link: https://github.com/ALSchwalm/GeneticImages
 status: Completed
 updated: 6/11/2013 

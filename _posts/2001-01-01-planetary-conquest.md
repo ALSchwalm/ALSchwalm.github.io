@@ -1,6 +1,7 @@
 ---
 layout: project
 title: Planetary Conquest
+pid: planets
 link: https://github.com/ALSchwalm/Planets
 status: completed
 updated: 6/22/2013
