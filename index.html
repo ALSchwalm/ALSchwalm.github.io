@@ -96,16 +96,23 @@ title: Projects
      dataType: "json",
      success: function (returndata)
      {
-       {% for project in site.categories.project %}
-       var repo = $.grep(returndata, function(repo){return repo.svn_url == "{{ project.link }}";})[0]
-       if (repo) {
-         var date = new Date(Date.parse(repo.updated_at));
-         date = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
-         var text = "Status: {{ project.status }}<br>Last Updated: " + date + "<br>";
-         $('#{{ project.pid }}').find('.project-details').html(text);
+       var projects = [
+         {% for project in site.categories.project %}
+         { pid:"{{ project.pid }}", link:"{{ project.link }}", status: "{{ project.status }}"},
+         {% endfor %}
+       ]
+
+       for(var index in projects) {
+         var project = projects[index];
+         var repo = $.grep(returndata, function(repo){return repo.svn_url == project.link;})[0]
+         if (repo) {
+           var date = new Date(Date.parse(repo.updated_at));
+           date = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
+           var text = "Status: " + project.status +"<br>Last Updated: " + date + "<br>";
+           $('#' + project.pid).find('.project-details').html(text);
+         }
        }
-       {% endfor %}
-     }  
+     }
    })
  });
 
