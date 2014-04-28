@@ -7,9 +7,9 @@ status: In progress
 updated: 7/02/2013
 images:
 - combat1.png
-image-title: 
+image-title:
 image-gallery: combatGallery
-play: http://combatweb.no-ip.org/
+play: http://192.210.140.53
 categories:
 - project
 ---
