@@ -12,7 +12,7 @@ The post will be the first in a series on the design and implementation of lock-
 
 Lock-free data structures are, as the name implies, structures which are designed without any internal locking mechanism (i.e., no mutexes, semaphores, etc.). This has several implications, the most significant of which is that such structures are not normally susceptible to deadlock. Lock-free algorithms and data structures effectively guarantee that at least one thread in a multi-threaded environment is making progress at any given moment.
 
-Additionally in some cases using locks may be undesirable due to performance or memory constraints. As an example, image a thread-safe linked list. If a lock is place at the highest level (i.e., only one thread can insert/read anywhere in the thread at a time), performance may suffer. On the other hand, if locks are placed in each node, the memory overhead of the list increases.
+Additionally in some cases using locks may be undesirable due to performance or memory constraints. As an example, image a thread-safe linked list. If a lock is place at the highest level, only one thread can insert/read anywhere in the thread at a time and performance may suffer. On the other hand, if locks are placed in each node, the memory overhead of the list increases.
 
 ###C++ Atomic Types
 
@@ -42,7 +42,7 @@ The first of these is fairly self explanatory. `std::atomic<T>` provides a membe
 
 ###A Naive Implementation
 
-It may initially seem that making the head of the stack atomic and using basic operations like load, store and exchange would be sufficient to construct a lock-free stack. This is not that case. Consider an implementation using only such operations:
+It may initially seem that making the head of the stack atomic and using basic operations like load, store and exchange would be sufficient to construct a lock-free stack. This is not the case. Consider an implementation using only such operations:
 
 {% highlight c++ linenos=table %}
 
@@ -104,7 +104,7 @@ That is, CAS checks a target atomic variable for an expected value. If the targe
 
 This pattern is what guarantees that some thread will be making progress at any given moment. It must be the case that _some_ thread's assumption is correct, (i.e., some thread must have read the value most recently) and that thread's CAS will succeed.
 
-CAS is spelled `compare_exchange_weak`* in C++. Using this pattern, `pop()` may be redesigned as follows:
+Recall from the above section that the `compare_exchange_weak/strong` functions were not defined. These functions are the C++ names for CAS.* Using the above pattern, `pop()` may be redesigned as follows:
 
 _\*The difference between `compare_exchange_weak` and `compare_exchange_strong` is that the former allows for spurious failures but is potentially faster. If the function is going to be called in a loop anyway, `compare_exchange_weak` is the preferred choice._
 
@@ -143,9 +143,9 @@ void push(const T& val) {
 
 {% endhighlight %}
 
-In this implementation the 'work' step is somewhat hidden. Remember, however, that the 'expected' value (i.e., the first parameter to `compare_exchange_weak`) will be updated if the CAS fails. This is the 'work' phase in this function.
+In this implementation the 'work' step is somewhat hidden. Remember, however, that the 'expected' value (the first parameter to `compare_exchange_weak`) will be updated if the CAS fails. This is the 'work' phase in this function.
 
-###The ABA Problem
+###Problems
 
 Is this the end? We've designed a stack using atomic variables and CAS loops. Is this stack correct? Unfortunately we are not so lucky. This implementation is still susceptible to two potential problems. The first of these is known as the ABA problem. This problem can be seen in the following example:
 
@@ -157,8 +157,6 @@ Is this the end? We've designed a stack using atomic variables and CAS loops. Is
 This example demonstrates one of the core problems with the CAS idiom. Namely it assumes that a value being equal at two points in time means that the value has _never_ changed. But this assumption may not always hold. The ABA problem occurs when a value *A* changes to some value *B*, then changes back to *A* allowing the CAS to erroneously succeed.
 
 In the above example, the ABA problem occurs because the `head` pointer (_A_) may be changed to some other value (_B_) by other threads, but the memory may be recycled by the OS, allowing it to subsequently be changed back to _A_. The value of `next` read in line 7 is not necessarily meaningful for the new head, leading to an invalid state after the CAS.
-
-###Delete Problem
 
 The second problem is somewhat simpler. Consider the example:
 
