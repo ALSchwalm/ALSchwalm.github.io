@@ -262,3 +262,24 @@ i.fa-hn {
   font-size: smaller;
   padding-bottom: 10px
 }
+
+thead{
+    border-bottom: 1px solid black;
+}
+
+table {
+    margin-bottom: 20px;
+}
+
+td {
+    border: 1px solid LightGray;
+    padding: 3px 0px 2px 20px;
+}
+
+table.highlighttable {
+    margin-bottom: 0px;
+}
+.highlighttable td {
+    border: 0px solid LightGray;
+    padding: 0px 0px 0px 0px;
+}
