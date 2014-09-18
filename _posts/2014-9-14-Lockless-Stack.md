@@ -44,7 +44,7 @@ The first of these is fairly self explanatory. `std::atomic<T>` provides a membe
 
 It may initially seem that making the head of the stack atomic and using basic operations like load, store and exchange would be sufficient to construct a lock-free stack. This is not the case. Consider an implementation using only such operations:
 
-{% highlight c++ linenos=table %}
+{% highlight c++ linenos %}
 
 template<typename T>
 struct LockFreeStack {
@@ -80,7 +80,7 @@ The design of more complex data structures requires the ability to do slightly m
 
 Atomic compare-and-swap (CAS) is a function which effectively performs the following steps in an atomic fashion:
 
-{% highlight c++ linenos=table %}
+{% highlight c++ linenos %}
 
 template<typename T>
 bool CAS(std::atomic<T>& target, T& expected, T update) {
@@ -108,7 +108,7 @@ Recall from the above section that the `compare_exchange_weak/strong` functions 
 
 _\*The difference between `compare_exchange_weak` and `compare_exchange_strong` is that the former allows for spurious failures but is potentially faster. If the function is going to be called in a loop anyway, `compare_exchange_weak` is the preferred choice._
 
-{% highlight c++ linenos=table %}
+{% highlight c++ linenos %}
 T pop() {
     // Get an initial value for head
     Node* oldHead = head.load();
@@ -131,7 +131,7 @@ This implementation performs some work (reading `next`), under the assumption th
 
 Making use of a similar pattern, `push` becomes:
 
-{% highlight c++ linenos=table %}
+{% highlight c++ linenos %}
 
 void push(const T& val) {
     // Construct a new node and set its next to the current head
