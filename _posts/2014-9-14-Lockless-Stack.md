@@ -12,7 +12,7 @@ The post will be the first in a series on the design and implementation of lock-
 
 Lock-free data structures are, as the name implies, structures which are designed without any internal locking mechanism (i.e., no mutexes, semaphores, etc.). This has several implications, the most significant of which is that such structures are not normally susceptible to deadlock. Lock-free algorithms and data structures effectively guarantee that at least one thread in a multi-threaded environment is making progress at any given moment.
 
-Additionally in some cases using locks may be undesirable due to performance or memory constraints. As an example, image a thread-safe linked list. If a lock is place at the highest level, only one thread can insert/read anywhere in the thread at a time and performance may suffer. On the other hand, if locks are placed in each node, the memory overhead of the list increases.
+Additionally in some cases using locks may be undesirable due to performance or memory constraints. As an example, imagine a thread-safe linked list. If a lock is placed at the highest level, only one thread can insert/read anywhere in the thread at a time and performance may suffer. On the other hand, if locks are placed in each node, the memory overhead of the list increases.
 
 ###C++ Atomic Types
 
