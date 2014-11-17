@@ -7,122 +7,123 @@ title: Projects
 
 <div id="home">
 
-  <h2> About </h2>
-  <hr/>
-  <p>
-    This is a small site dedicated to projects developed by me, Adam Schwalm. I was born in Jackson, Mississippi in 1992. 
-    I'm currently attending Mississippi State University studying Software Engineering and Computer Science. My interests range from
-    genetic programming to high performance computing. I will do my best to keep this page up-to-date with my latest work, but my 
-    Github is guaranteed to be current.
-  </p>
-  <br>
-  <h2>Open Source Projects</h2>
-  <ul id="blog-projects">
+    <h2> About </h2>
     <hr/>
-    {% for project in site.categories.project %}
-    <div class="project" id="{{ project.pid }}">
-      <div class="project-header">
-        
-        <div class="bar">
-          {% if project.play %}
-          <a href={{ project.play }}>play</a> |
-          {% endif %}
-          <span class="project-link detail-button">details</span> |
-          <a href={{ project.link }}>Github</a>
-          
+    <p>
+        This is a small site dedicated to projects developed by me, Adam Schwalm. I was born in Jackson, Mississippi in 1992.
+        I'm currently attending Mississippi State University studying Software Engineering and Computer Science. My interests range from
+        genetic programming to high performance computing. I will do my best to keep this page up-to-date with my latest work, but my
+        Github is guaranteed to be current.
+    </p>
+    <br>
+    <h2>Open Source Projects</h2>
+    <ul id="blog-projects">
+        <hr/>
+        {% for project in site.categories.project %}
+        <div class="project" id="{{ project.pid }}">
+            <div class="project-header">
+
+                <div class="bar">
+                    {% if project.play %}
+                    <a href={{ project.play }}>play</a> |
+                    {% endif %}
+                    <span class="project-link detail-button">details</span> |
+                    <a href={{ project.link }}>Github</a>
+
+                </div>
+
+                <h3>{{ project.title }}</h3>
+            </div>
+
+            {% assign first-image = true %}
+            {% for image in project.images %}
+            <a class="fancybox" rel="{{ project.image-gallery }}" title="{{ project.image-title }}" href="/assets/{{ image }}">
+                {% if first-image %}
+                <img src="/assets/{{ image }}" class="project-screenshot"></img>
+                {% assign first-image = false %}
+                {% else %}
+                <img src="/assets/{{ image }}" style="display:none"></img>
+                {% endif %}
+            </a>
+            {% endfor %}
+
+            <div class="project-description">
+                {{ project.content }}
+
+                <div class="project-details">
+                    <br>Last Updated: {{ project.updated }}
+                    <br>Status: {{ project.status }}
+                </div>
+            </div>
         </div>
-        
-        <h3>{{ project.title }}</h3>
-      </div>
 
-      {% assign first-image = true %}
-      {% for image in project.images %}
-        <a class="fancybox" rel="{{ project.image-gallery }}" title="{{ project.image-title }}" href="/assets/{{ image }}">
-          {% if first-image %}
-              <img src="/assets/{{ image }}" class="project-screenshot"></img>
-              {% assign first-image = false %}
-          {% else %}
-              <img src="/assets/{{ image }}" style="display:none"></img>
-          {% endif %}
-        </a>
-      {% endfor %}
+        {% if forloop.index < forloop.length %}
+        <hr class="project-break">
+        {% else %}
+        <hr class="project-break" style="visibility:hidden;">
+        {% endif %}
 
-      <div class="project-description">
-        {{ project.content }}
-
-        <div class="project-details">
-          <br>Last Updated: {{ project.updated }}
-          <br>Status: {{ project.status }}
-        </div>
-      </div>
-    </div>
-
-    {% if forloop.index < forloop.length %}
-    <hr class="project-break">
-    {% else %}
-    <hr class="project-break" style="visibility:hidden;">
-    {% endif %}
-    
-    {% endfor %}
-  </ul>
+        {% endfor %}
+    </ul>
 </div>
 
 <script>
 
-  $(document).ready(function() {
-      $(".fancybox").fancybox({
-          openEffect	: 'none',
-          closeEffect	: 'none',
-          prevEffect 	: 'none',
-          nextEffect 	: 'none',
-          afterLoad : function() {
-              this.title = 'Image ' + (this.index + 1) + ' of ' 
-                           + this.group.length + (this.title ? ' - ' + this.title : '');
-          },
-          helpers : {
-              title : {
-                  type : 'over'
-              },
-              overlay : {
-                  locked : false
-              }
+ $(document).ready(function() {
+     $(".fancybox").fancybox({
+         openEffect	: 'none',
+         closeEffect	: 'none',
+         prevEffect 	: 'none',
+         nextEffect 	: 'none',
+         afterLoad : function() {
+             this.title = 'Image ' + (this.index + 1) + ' of '
+             + this.group.length + (this.title ? ' - ' + this.title : '');
+         },
+         helpers : {
+             title : {
+                 type : 'over'
+             },
+             overlay : {
+                 locked : false
+             }
          }
      });
-  });
-
- $(document).ready(function() {
-   $.ajax({
-     url: "https://api.github.com/users/alschwalm/repos",
-     dataType: "json",
-     success: function (returndata)
-     {
-       var projects = [
-         {% for project in site.categories.project %}
-         { pid:"{{ project.pid }}", link:"{{ project.link }}", status: "{{ project.status }}"},
-         {% endfor %}
-       ]
-
-       for(var index in projects) {
-         var project = projects[index];
-         var repo = $.grep(returndata, function(repo){return repo.svn_url == project.link;})[0]
-         if (repo) {
-           var date = new Date(Date.parse(repo.updated_at));
-           date = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
-           var text = "Status: " + project.status +"<br>Last Updated: " + date + "<br>";
-           $('#' + project.pid).find('.project-details').html(text);
-         }
-       }
-     }
-   })
  });
 
-  $('.detail-button').click(function() {
-      $(this).parent().parent().parent().find(".project-details").toggle('medium');
-          if ($(this).text() == "details") {
-              $(this).text("hide");
-          }
-          else {
-              $(this).text("details");
-          }
-      });
+ // Gather current project's 'last updated' times
+ $(document).ready(function() {
+     $.ajax({
+         url: "https://api.github.com/users/alschwalm/repos",
+         dataType: "json",
+         success: function (returndata)
+         {
+             var projects = [
+                 {% for project in site.categories.project %}
+                 { pid:"{{ project.pid }}", link:"{{ project.link }}", status: "{{ project.status }}"},
+                 {% endfor %}
+             ]
+
+             for(var index in projects) {
+                 var project = projects[index];
+                 var repo = $.grep(returndata, function(repo){return repo.svn_url == project.link;})[0]
+                 if (repo) {
+                     var date = new Date(Date.parse(repo.updated_at));
+                     date = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
+                     var text = "Status: " + project.status +"<br>Last Updated: " + date + "<br>";
+                     $('#' + project.pid).find('.project-details').html(text);
+                 }
+             }
+         }
+     })
+ });
+
+ $('.detail-button').click(function() {
+     $(this).parent().parent().parent().find(".project-details").toggle('medium');
+     if ($(this).text() == "details") {
+         $(this).text("hide");
+     }
+     else {
+         $(this).text("details");
+     }
+ });
 </script>
