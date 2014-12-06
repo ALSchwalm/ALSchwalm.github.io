@@ -9,7 +9,7 @@ images:
 - combat1.png
 image-title:
 image-gallery: combatGallery
-play: http://162.251.114.76:2802
+play: http://combatweb.ddns.net
 categories:
 - project
 ---
