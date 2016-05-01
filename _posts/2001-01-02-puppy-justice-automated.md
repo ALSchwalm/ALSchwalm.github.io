@@ -20,4 +20,4 @@ PuppyJusticeAutomated creates videos corresponding to US Supreme Court transcrip
 making listening to the audio from court cases more entertaining. Generated videos
 are available [here][youtube].
 
-[youtube]: https://www.youtube.com/watch?v=SqrgEHctR0k
+[youtube]: https://www.youtube.com/channel/UCn1ibFnn3NcXjQHY47o0yWg

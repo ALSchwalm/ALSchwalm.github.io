@@ -1,8 +1,8 @@
 # General Jekyll Config
-pygments: true
 url: http://alschwalm.com
 lsi: false
 exclude: [LICENSE, CNAME, README.md, .gitignore]
+highlighter: rouge
 markdown: kramdown
 
 # Theme customization - please change from the defaults!
