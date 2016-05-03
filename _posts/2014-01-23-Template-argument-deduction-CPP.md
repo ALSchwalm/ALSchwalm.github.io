@@ -85,7 +85,7 @@ void main() {
 {% endhighlight %}
 
 will not work. It is easy to see reasons why it would be problematic. For example,
-if this were true, it could lead to some very confusing results. 
+if this were true, it could lead to some very confusing results.
 
 {% highlight c++ %}
 
@@ -140,7 +140,7 @@ use of it at several points with `make_pair`, `make_tuple` and others.
 
 ---
 
-###Remote Argument Deduction
+### Remote Argument Deduction
 
 There is a notable hole in the "always use template argument deduction" proposal.
 Namely, the following will not compile:
@@ -191,7 +191,7 @@ available [here][paper] authored by the great Stephan T. Lavavej.
 
 [paper]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3421.htm
 
-###What else?
+### What else?
 
 Using the tools above should allow the reader to exploit template argument deduction
 in most common circumstances. The complete rules of TAD may, of course be found in

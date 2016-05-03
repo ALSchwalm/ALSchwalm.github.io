@@ -8,16 +8,17 @@ tags: [C++, templates, lockfree]
 
 The post will be the first in a series on the design and implementation of lock-free data structures in C++. These structures are typically reasonably well described in literature. However, the C++11 standard allows implementations of such structures using only standard utilities. These posts are intended for readers with some familiarity with atomicity and multithreaded programming, however no prior knowledge of lock-free data structures or the C++ atomic interface is expected.
 
-###Lock-free Data Structures
+### Lock-free Data Structures
 
 Lock-free data structures are, as the name implies, structures which are designed without any internal locking mechanism (i.e., no mutexes, semaphores, etc.). This has several implications, the most significant of which is that such structures are not normally susceptible to deadlock. Lock-free algorithms and data structures effectively guarantee that at least one thread in a multi-threaded environment is making progress at any given moment.
 
 Additionally in some cases using locks may be undesirable due to performance or memory constraints. As an example, imagine a thread-safe linked list. If a lock is placed at the highest level, only one thread can insert/read anywhere in the thread at a time and performance may suffer. On the other hand, if locks are placed in each node, the memory overhead of the list increases.
 
-###C++ Atomic Types
+## C++ Atomic Types
 
 Before describing an implementation, it is important to discuss the C++ atomic interface. C++11 introduced the `std::atomic<T>` struct for atomically operating on types. Operations on such types are guaranteed to be free from data races. So if a thread reads the value of, say, a `std::atomic<int>` while another thread writes to it, the behavior is well defined. The interface of `std::atomic<T>` provides the following atomic operations\*:
 
+{:.infotable}
 | Function Name             | Description                                                            |
 |---------------------------+------------------------------------------------------------------------|
 | `store`                   | store an instance of `T` in this atomic variable                       |
@@ -40,7 +41,7 @@ The first of these is fairly self explanatory. `std::atomic<T>` provides a membe
 
 [macro_list]: http://en.cppreference.com/w/cpp/atomic/atomic_is_lock_free
 
-###A Naive Implementation
+### A Naive Implementation
 
 It may initially seem that making the head of the stack atomic and using basic operations like load, store and exchange would be sufficient to construct a lock-free stack. This is not the case. Consider an implementation using only such operations:
 
@@ -76,7 +77,7 @@ Additionally, it is important to remember that combining atomic operations (i.e.
 
 The design of more complex data structures requires the ability to do slightly more work in an atomic operation than any of `load`, `store` or `exchange`. Enter: compare-and-swap.
 
-###Compare-and-swap
+### Compare-and-swap
 
 Atomic compare-and-swap (CAS) is a function which effectively performs the following steps in an atomic fashion:
 
@@ -145,7 +146,7 @@ void push(const T& val) {
 
 In this implementation the 'work' step is somewhat hidden. Remember, however, that the 'expected' value (the first parameter to `compare_exchange_weak`) will be updated if the CAS fails. This is the 'work' phase in this function.
 
-###Problems
+### Problems
 
 Is this the end? We've designed a stack using atomic variables and CAS loops. Is this stack correct? Unfortunately we are not so lucky. This implementation is still susceptible to two potential problems. The first of these is known as the ABA problem. This problem can be seen in the following example:
 

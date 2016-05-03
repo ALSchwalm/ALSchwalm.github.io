@@ -129,7 +129,6 @@ nav hr {
   border: 1px solid #ddd;
   background-color: #eef;
   padding: 0 .4em;
-  margin-bottom: 20px !important;
 }
 
 #post ul,
@@ -263,23 +262,40 @@ i.fa-hn {
   padding-bottom: 10px
 }
 
-thead{
+.infotable thead{
     border-bottom: 1px solid black;
 }
 
-table {
+.infotable table {
     margin-bottom: 20px;
 }
 
-td {
+.infotable td {
     border: 1px solid LightGray;
     padding: 3px 0px 2px 20px;
 }
 
-table.highlighttable {
+.infotable table.highlighttable {
     margin-bottom: 0px;
 }
-.highlighttable td {
+
+.infotable .highlighttable td {
     border: 0px solid LightGray;
     padding: 0px 0px 0px 0px;
+}
+
+#post>.highlight>pre {
+    padding: 0px;
+}
+
+#post>.highlight>pre>code {
+    padding: 0px;
+}
+
+#post>.highlight>pre>code>table {
+    width: 100%;
+}
+
+.highlight {
+    margin-bottom: 20px !important;
 }
