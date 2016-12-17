@@ -1,129 +1,449 @@
----
-layout: default
-title: Projects
----
-<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-<script type="text/javascript" src="/js/jquery.fancybox.pack.js"></script>
+<!DOCTYPE html>
+<!--[if lt IE 8 ]><html class="no-js ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="no-js ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 8)|!(IE)]><!--><html class="no-js" lang="en"> <!--<![endif]-->
+<head>
 
-<div id="home">
+   <!--- Basic Page Needs
+   ================================================== -->
+   <meta charset="utf-8">
+  <title>ALSchwalm</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
 
-    <h2> About </h2>
-    <hr/>
-    <p>
-      This is a small site dedicated to projects developed by me, Adam Schwalm. I graduated from Mississippi
-      State University in 2015, and am currently working for Dynetics Inc. as a security researcher and
-      software engineer. This site contains a (somewhat arbitrary) list of personal projects I have worked on.
-      I will do my best to keep it up-to-date, but my Github profile is guaranteed to be current.
-    </p>
-    <br>
-    <h2>Open Source Projects</h2>
-    <ul id="blog-projects">
-        <hr/>
-        {% for project in site.categories.project %}
-        <div class="project" id="{{ project.pid }}">
-            <div class="project-header">
+   <!-- Mobile Specific Metas
+   ================================================== -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-                <div class="bar">
-                    {% if project.play %}
-                    <a href={{ project.play }}>play</a> |
-                    {% endif %}
-                    <span class="project-link detail-button">details</span> |
-                    <a href={{ project.link }}>Github</a>
+  <!-- CSS
+    ================================================== -->
+   <link rel="stylesheet" href="css/default.css">
+   <link rel="stylesheet" href="css/layout.css">
+   <link rel="stylesheet" href="css/media-queries.css">
+   <link rel="stylesheet" href="css/magnific-popup.css">
 
-                </div>
+   <!-- Script
+   ================================================== -->
+  <script src="js/modernizr.js"></script>
 
-                <h3>{{ project.title }}</h3>
+   <!-- Favicons
+  ================================================== -->
+  <link rel="shortcut icon" href="favicon.ico" >
+
+</head>
+
+<body>
+
+   <!-- Header
+   ================================================== -->
+   <header id="home">
+
+      <nav id="nav-wrap">
+
+         <a class="mobile-btn" href="#nav-wrap" title="Show navigation">Show navigation</a>
+        <a class="mobile-btn" href="#" title="Hide navigation">Hide navigation</a>
+
+         <ul id="nav" class="nav">
+            <li class="current"><a class="smoothscroll" href="#home">Home</a></li>
+            <li><a class="smoothscroll" href="#about">About</a></li>
+           <li><a class="smoothscroll" href="#resume">Resume</a></li>
+            <li><a class="smoothscroll" href="#portfolio">Works</a></li>
+         </ul> <!-- end #nav -->
+
+      </nav> <!-- end #nav-wrap -->
+
+      <div class="row banner">
+         <div class="banner-text">
+            <h1 class="responsive-headline">I'm Adam Schwalm.</h1>
+            <h3>
+              I'm a <span>reverse engineer</span> and <span>programmer</span>
+              based in Huntsville, Alabama.
+            </h3>
+            <hr />
+            <ul class="social">
+              <li><a href="https://www.twitter.com/alschwalm"><i class="fa fa-twitter"></i></a></li>
+              <li><a href="https://www.github.com/alschwalm"><i class="fa fa-github"></i></a></li>
+            </ul>
+         </div>
+      </div>
+
+      <p class="scrolldown">
+         <a class="smoothscroll" href="#about"><i class="icon-down-circle"></i></a>
+      </p>
+
+   </header> <!-- Header End -->
+
+
+   <!-- About Section
+   ================================================== -->
+   <section id="about">
+
+      <div class="row">
+
+         <div class="three columns">
+
+            <img class="profile-pic"  src="images/profilepic.jpg" alt="" />
+
+         </div>
+
+         <div class="nine columns main-col">
+
+            <h2>About Me</h2>
+            <p>
+              I spend a lot of time developing software. My programming interests range from
+              geneic programming to lock-free data structures, and I work in a variety of
+              languages including C++, python, and elisp. When I'm not writing code I'm usually
+              playing the piano or reading.
+            </p>
+
+            <!-- TODO: add this
+            <div class="row">
+               <div class="columns download">
+                  <p>
+                     <a href="#" class="button"><i class="fa fa-download"></i>Download Resume</a>
+                  </p>
+               </div>
             </div>
+            -->
+         </div> <!-- end .main-col -->
 
-            {% assign first-image = true %}
-            {% for image in project.images %}
-            <a class="fancybox" rel="{{ project.image-gallery }}" title="{{ project.image-title }}" href="/assets/{{ image }}">
-                {% if first-image %}
-                <img src="/assets/{{ image }}" class="project-screenshot"></img>
-                {% assign first-image = false %}
-                {% else %}
-                <img src="/assets/{{ image }}" style="display:none"></img>
-                {% endif %}
-            </a>
-            {% endfor %}
+      </div>
 
-            <div class="project-description">
-                {{ project.content }}
+   </section> <!-- About Section End-->
 
-                <div class="project-details">
-                    <br>Last Updated: {{ project.updated }}
-                    <br>Status: {{ project.status }}
-                </div>
-            </div>
+
+   <!-- Resume Section
+   ================================================== -->
+   <section id="resume">
+
+      <!-- Education
+      ----------------------------------------------- -->
+      <div class="row education">
+
+         <div class="three columns header-col">
+            <h1><span>Education</span></h1>
+         </div>
+
+         <div class="nine columns main-col">
+
+            <div class="row item">
+
+               <div class="twelve columns">
+
+                  <h3>Mississippi State University</h3>
+                  <p class="info">Batchelors in Software Engineering <span>&bull;</span> <em class="date">May 2015</em></p>
+
+                  <p>
+                    My studies in software engineering ranged from high-performance computing
+                    to database design. My undergraduate work focused on the design of a lock-free
+                    memory allocator in C++.
+                  </p>
+
+               </div>
+            </div> <!-- item end -->
+
+         </div> <!-- main-col end -->
+
+      </div> <!-- End Education -->
+
+
+      <!-- Work
+      ----------------------------------------------- -->
+      <div class="row work">
+
+         <div class="three columns header-col">
+            <h1><span>Work</span></h1>
+         </div>
+
+         <div class="nine columns main-col">
+
+            <div class="row item">
+
+               <div class="twelve columns">
+                  <h3>Dynetics</h3>
+                  <p class="info">Reverse Engineer/Developer <span>&bull;</span> <em class="date">May 2015 - Present</em></p>
+                  <p>
+                    I currently do security research for Dynetics. In that capacity, I perform a variety of tasks including
+                    reverse engineering (typically on real time operating systems) and tool development.
+                  </p>
+               </div>
+
+            </div> <!-- item end -->
+
+            <div class="row item">
+
+               <div class="twelve columns">
+
+                  <h3>ViaSat</h3>
+                  <p class="info">Software Developer/Intern <span>&bull;</span> <em class="date">May 2014 - March 2015</em></p>
+
+                  <p>
+                    While at ViaSat, I designed and implimented high performance QNX applications.
+                    I also participated in the specification of programming API to interact with
+                    these applications, and later worked with a team to construct an HTML5 web
+                    front-end using this API.
+                  </p>
+               </div>
+
+            </div> <!-- item end -->
+
+         </div> <!-- main-col end -->
+
+      </div> <!-- End Work -->
+
+
+      <!-- Skills
+      ----------------------------------------------- -->
+      <div class="row skill">
+
+        <div class="three columns header-col">
+          <h1><span>Skills</span></h1>
         </div>
 
-        {% if forloop.index < forloop.length %}
-        <hr class="project-break">
-        {% else %}
-        <hr class="project-break" style="visibility:hidden;">
-        {% endif %}
+        <div class="nine columns main-col">
+          <p>
+            I try to maintain a diverse skillset including but not limited to the areas below:
+          </p>
+          <dl>
+            <dt>
+              <b>Programming Languages</b>
+            </dt>
+            <dd>
+              C++/14, C, Python, Javascript, D, and Java
+            </dd>
+            <dt>
+              <b>Development Environments</b>
+            </dt>
+            <dd>
+              Emacs, Eclipse, Visual Studios
+            </dd>
+            <dt>
+              <b>Platforms</b>
+            </dt>
+            <dd>
+              GNU Linux (Kali/Arch/Debian), Windows
+            </dd>
+            <dt>
+              <b>Security Tools</b>
+            </dt>
+            <dd>
+              IDA Pro, radare2, Burp
+            </dd>
+          </dl>
+        </div> <!-- main-col end -->
 
-        {% endfor %}
-    </ul>
-</div>
+      </div> <!-- End skills -->
 
-<script>
+   </section> <!-- Resume Section End-->
 
- $(document).ready(function() {
-     $(".fancybox").fancybox({
-         openEffect	: 'none',
-         closeEffect	: 'none',
-         prevEffect 	: 'none',
-         nextEffect 	: 'none',
-         afterLoad : function() {
-             this.title = 'Image ' + (this.index + 1) + ' of '
-             + this.group.length + (this.title ? ' - ' + this.title : '');
-         },
-         helpers : {
-             title : {
-                 type : 'over'
-             },
-             overlay : {
-                 locked : false
-             }
-         }
-     });
- });
 
- // Gather current project's 'last updated' times
- $(document).ready(function() {
-     $.ajax({
-         url: "https://api.github.com/users/alschwalm/repos",
-         dataType: "json",
-         success: function (returndata)
-         {
-             var projects = [
-                 {% for project in site.categories.project %}
-                 { pid:"{{ project.pid }}", link:"{{ project.link }}", status: "{{ project.status }}"},
-                 {% endfor %}
-             ]
+   <!-- Portfolio Section
+   ================================================== -->
+   <section id="portfolio">
 
-             for(var index in projects) {
-                 var project = projects[index];
-                 var repo = $.grep(returndata, function(repo){return repo.svn_url == project.link;})[0]
-                 if (repo) {
-                     var date = new Date(Date.parse(repo.updated_at));
-                     date = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
-                     var text = "Status: " + project.status +"<br>Last Updated: " + date + "<br>";
-                     $('#' + project.pid).find('.project-details').html(text);
-                 }
-             }
-         }
-     })
- });
+      <div class="row">
 
- $('.detail-button').click(function() {
-     $(this).parent().parent().parent().find(".project-details").toggle('medium');
-     if ($(this).text() == "details") {
-         $(this).text("hide");
-     }
-     else {
-         $(this).text("details");
-     }
- });
-</script>
+         <div class="twelve columns collapsed">
+
+           <h1>Check Out Some of My Works. Others available on <a href="https://www.github.com/alschwalm">Github</a></h1>
+
+            <!-- portfolio-wrapper -->
+            <div id="portfolio-wrapper" class="bgrid-quarters s-bgrid-thirds cf">
+
+               <div class="columns portfolio-item">
+                  <div class="item-wrap">
+                     <a href="#modal-01" title="">
+                        <img alt="" src="images/portfolio/foresight.png">
+                        <div class="overlay">
+                          <div class="portfolio-item-meta">
+                            <h5>Foresight</h5>
+                            <p>Tool</p>
+                          </div>
+                        </div>
+                        <div class="link-icon"><i class="icon-plus"></i></div>
+                     </a>
+                  </div>
+              </div> <!-- item end -->
+
+               <div class="columns portfolio-item">
+                  <div class="item-wrap">
+
+                     <a href="#modal-02" title="">
+                        <img alt="" src="images/portfolio/quad.png">
+                        <div class="overlay">
+                          <div class="portfolio-item-meta">
+                            <h5>QuaD</h5>
+                            <p>Web Development</p>
+                          </div>
+                        </div>
+                        <div class="link-icon"><i class="icon-plus"></i></div>
+                     </a>
+
+                  </div>
+              </div> <!-- item end -->
+
+               <div class="columns portfolio-item">
+                  <div class="item-wrap">
+
+                     <a href="#modal-03" title="">
+                        <img alt="" src="images/portfolio/puppyjustice.png">
+                        <div class="overlay">
+                          <div class="portfolio-item-meta">
+                            <h5>PuppyJusticeAutomated</h5>
+                            <p>Entertainment</p>
+                          </div>
+                        </div>
+                        <div class="link-icon"><i class="icon-plus"></i></div>
+                     </a>
+
+                  </div>
+              </div> <!-- item end -->
+
+               <div class="columns portfolio-item">
+                  <div class="item-wrap">
+
+                     <a href="#modal-04" title="">
+                        <img alt="" src="images/portfolio/devolve.png">
+                        <div class="overlay">
+                          <div class="portfolio-item-meta">
+                            <h5>Devolve</h5>
+                            <p>Genetic Programming</p>
+                          </div>
+                        </div>
+                        <div class="link-icon"><i class="icon-plus"></i></div>
+                     </a>
+
+                  </div>
+              </div> <!-- item end -->
+
+            </div> <!-- portfolio-wrapper end -->
+
+         </div> <!-- twelve columns end -->
+
+
+         <!-- Modal Popup
+        --------------------------------------------------------------- -->
+
+         <div id="modal-01" class="popup-modal mfp-hide">
+
+          <img class="scale-with-grid" src="images/portfolio/modals/m-foresight.png" alt="" />
+
+          <div class="description-box">
+            <h4>Foresight</h4>
+            <p>
+              Foresight is a python library for predicting the output of random number generators across a
+              variety of platforms and languages including glibc, MSVC, PHP, and Java.
+            </p>
+               <span class="categories"><i class="fa fa-tag"></i>Security, Python</span>
+          </div>
+
+            <div class="link-box">
+               <a href="https://www.github.com/alschwalm/foresight">Details</a>
+             <a class="popup-modal-dismiss">Close</a>
+            </div>
+
+        </div><!-- modal-01 End -->
+
+         <div id="modal-02" class="popup-modal mfp-hide">
+
+          <img class="scale-with-grid" src="images/portfolio/modals/m-quad.png" alt="" />
+
+          <div class="description-box">
+            <h4>QuaD</h4>
+            <p>A WebGL based puzzle game written using <a href="http://phaser.io">phaser.</a></p>
+            <span class="categories"><i class="fa fa-tag"></i>Web Development, Game</span>
+          </div>
+
+          <div class="link-box">
+            <a href="https://alschwalm.com/Quad">Play</a>
+            &nbsp;&nbsp;
+            <a href="https://www.github.com/alschwalm/quad">Details</a>
+            <a class="popup-modal-dismiss">Close</a>
+          </div>
+        </div><!-- modal-02 End -->
+
+         <div id="modal-03" class="popup-modal mfp-hide">
+          <img class="scale-with-grid" src="images/portfolio/modals/m-puppyjustice.png" alt="" />
+
+          <div class="description-box">
+            <h4>PuppyJusticeAutomated</h4>
+            <p>
+              PuppyJusticeAutomated is a tool that pragmatically generates videos from US Supreme Court transcripts,
+              making listening to the audio from court cases more entertaining.
+
+              Generated videos are available <a href="https://www.youtube.com/c/PuppyJusticeAutomated">here</a>.
+            </p>
+            <span class="categories"><i class="fa fa-tag"></i>Entertainment</span>
+          </div>
+
+          <div class="link-box">
+            <a href="https://github.com/ALSchwalm/PuppyJusticeAutomated">Details</a>
+            <a class="popup-modal-dismiss">Close</a>
+          </div>
+        </div><!-- modal-03 End -->
+
+         <div id="modal-04" class="popup-modal mfp-hide">
+
+          <img class="scale-with-grid" src="images/portfolio/modals/m-devolve.png" alt="" />
+
+          <div class="description-box">
+            <h4>Devolve</h4>
+            <p>
+              devolve is a genetic programming library written in the D programming language.
+              The core goal of the project is to create a flexible, easy-to-use interface while
+              still maintaining performance
+            </p>
+            <span class="categories"><i class="fa fa-tag"></i>D, Genetic Programming</span>
+          </div>
+
+          <div class="link-box">
+            <a href="https://github.com/ALSchwalm/devolve">Details</a>
+            <a class="popup-modal-dismiss">Close</a>
+          </div>
+
+        </div><!-- modal-04 End -->
+
+      </div> <!-- row End -->
+
+   </section> <!-- Portfolio Section End-->
+
+
+   <!-- footer
+   ================================================== -->
+   <footer>
+
+      <div class="row">
+
+         <div class="twelve columns">
+
+            <ul class="social-links">
+             <li><a href="https://www.twitter.com/alschwalm"><i class="fa fa-twitter"></i></a></li>
+             <li><a href="https://www.github.com/alschwalm"><i class="fa fa-github"></i></a></li>
+            </ul>
+
+            <ul class="copyright">
+               <li>&copy; Copyright 2014 CeeVee</li>
+               <li>Design by <a title="Styleshout" href="http://www.styleshout.com/">Styleshout</a></li>
+            </ul>
+
+         </div>
+
+         <div id="go-top"><a class="smoothscroll" title="Back to Top" href="#home"><i class="icon-up-open"></i></a></div>
+
+      </div>
+
+   </footer> <!-- Footer End-->
+
+   <!-- Java Script
+   ================================================== -->
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+   <script>window.jQuery || document.write('<script src="js/jquery-1.10.2.min.js"><\/script>')</script>
+   <script type="text/javascript" src="js/jquery-migrate-1.2.1.min.js"></script>
+
+   <script src="js/jquery.flexslider.js"></script>
+   <script src="js/waypoints.js"></script>
+   <script src="js/jquery.fittext.js"></script>
+   <script src="js/magnific-popup.js"></script>
+   <script src="js/init.js"></script>
+</body>
+</html>
