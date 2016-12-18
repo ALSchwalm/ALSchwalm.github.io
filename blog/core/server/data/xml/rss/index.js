@@ -179,7 +179,7 @@ generate = function generate(req, res, next) {
         // data.siteUrl = config.urlFor('home', {secure: req.secure}, true);
         // data.feedUrl = config.urlFor({relativeUrl: baseUrl, secure: req.secure}, true);
         data.siteUrl = "https://alschwalm.com/blog/static/";
-        data.feedUrl = "https://alschwalm.com/blog/static/rss/index.rss";
+        data.feedUrl = "https://alschwalm.com/blog/static/rss/index.xml";
         data.secure = req.secure;
 
         return getFeedXml(req.originalUrl, data).then(function then(feedXml) {
