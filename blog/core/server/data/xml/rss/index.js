@@ -61,8 +61,8 @@ function getBaseUrl(req, slugParam) {
     } else {
         baseUrl += '/rss/';
     }
-
-    return baseUrl;
+    return "https://alschwalm.com/blog/static/rss/";
+    //return baseUrl;
 }
 
 getFeedXml = function getFeedXml(path, data) {
@@ -106,7 +106,7 @@ generateFeed = function generateFeed(data) {
     });
 
     data.results.posts.forEach(function forEach(post) {
-        var itemUrl = config.urlFor('post', {post: post, secure: data.secure}, true),
+        var itemUrl = "https://alschwalm.com/blog/static" + post.url, //config.urlFor('post', {post: post, secure: data.secure}, true),
             htmlContent = processUrls(post.html, data.siteUrl, itemUrl),
             item = {
                 title: post.title,
