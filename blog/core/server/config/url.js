@@ -18,6 +18,7 @@ function setConfig(config) {
 }
 
 function getBaseUrl(secure) {
+  return "https://alschwalm.com/blog/static";
     if (secure && ghostConfig.urlSSL) {
         return ghostConfig.urlSSL;
     } else {
