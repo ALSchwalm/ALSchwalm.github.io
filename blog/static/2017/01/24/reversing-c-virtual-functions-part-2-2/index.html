@@ -1,0 +1,409 @@
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Reversing C++ Virtual Functions: Part 2</title>
+    <meta name="description" content="">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="../../../../favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="../../../../assets/css/screen.css?v=ccb1f74a60">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic%7COpen+Sans:700,400">
+
+    <link rel="canonical" href="https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <link rel="amphtml" href="https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/amp/">
+    
+    <meta property="og:site_name" content="Security Through Obscurity">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Reversing C++ Virtual Functions: Part 2">
+    <meta property="og:description" content="In the previous part I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create">
+    <meta property="og:url" content="https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/">
+    <meta property="article:published_time" content="2017-01-24T03:13:19.000Z">
+    <meta property="article:modified_time" content="2017-01-24T03:13:19.000Z">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Reversing C++ Virtual Functions: Part 2">
+    <meta name="twitter:description" content="In the previous part I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create">
+    <meta name="twitter:url" content="https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Adam Schwalm">
+    <meta name="twitter:site" content="@alschwalm">
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Security Through Obscurity",
+        "logo": "https://alschwalm.com/blog/static/ghost/img/ghosticon.jpg"
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Adam Schwalm",
+        "url": "https://alschwalm.com/blog/static/author/adam/",
+        "sameAs": []
+    },
+    "headline": "Reversing C++ Virtual Functions: Part 2",
+    "url": "https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/",
+    "datePublished": "2017-01-24T03:13:19.000Z",
+    "dateModified": "2017-01-24T03:13:19.000Z",
+    "description": "In the previous part I described one approach to &#x27;devirtualize&#x27; function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:2368"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 0.11">
+    <link rel="alternate" type="application/rss+xml" title="Security Through Obscurity" href="https://alschwalm.com/blog/static/rss/">
+    <style>  
+.post .post-content figcaption {
+    font-weight: 400;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.3;
+    color: #666665;
+    outline: 0;
+    z-index: 300;
+    text-align: center;
+}
+</style>
+<script>
+   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+   ga('create', 'UA-89212918-1', 'auto');
+   ga('send', 'pageview');
+
+</script>
+</head>
+<body class="post-template nav-closed">
+
+    <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="index.html#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+            <li class="nav-home" role="presentation"><a href="https://alschwalm.com/blog/static/">Home</a></li>
+    </ul>
+        <a class="subscribe-button icon-feed" href="../../../../rss/index.xml">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+
+    <div class="site-wrapper">
+
+        
+
+
+<header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        
+            <a class="menu-button icon-menu" href="index.html#"><span class="word">Menu</span></a>
+    </nav>
+</header>
+
+<main class="content" role="main">
+    <article class="post">
+
+        <header class="post-header">
+            <h1 class="post-title">Reversing C++ Virtual Functions: Part 2</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2017-01-24">24 January 2017</time> 
+            </section>
+        </header>
+
+        <section class="post-content">
+            <p>In the <a href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/">previous part</a> I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create these structures and relationships.</p>
+
+<p>So, in this part I will go through a more precise description of the layout of vtables and how we can find them programmatically. I will also show how we can sometimes recover relationships between these vtables (and therefore, between the types they are associated with).</p>
+
+<p>But first I need to describe the set of binaries this is applicable to. In the first part I mentioned that most things related to vtable layout were not specified in the standard, and so tended to vary from compiler to compiler. This is because the C++ standard needs to be applicable regardless of the underlying architecture. It would be unfortunate if the spec required some specific vtable layout that was inefficient on some architecture. The compiler developers for that architecture would be required to choose between performance and compliance (more than they already are).</p>
+
+<p>However, because programs produced by different compilers frequently need to interact (most notable, for dynamic linking), compiler developers agreed to a kind of supplemental specification for things like vtable layout, exception implementation and others. The most common of these is the <a href="https://mentorembedded.github.io/cxx-abi/abi.html">Itanium C++ ABI</a>. This standard is implemented by GCC, clang, ICC, and many other compilers (but notably, not Visual Studio). The descriptions I give will be applicable these compilers.</p>
+
+<p>The Itanium ABI is also still ambiguous in some areas. For example, it does not state what segments should be used to store vtables. So I will further specify that I'm describing GCC's particular brand of Itanium. So in essence, I am describing the highlighted section:</p>
+
+<p><img src="../../../../content/images/2017/01/GCC_location-1.png" alt=""></p>
+
+<p>Additionally, the following assumptions are made:</p>
+
+<ol>
+<li>RTTI is disabled (if it were on, this would be much easier)  </li>
+<li>The program does not contain occurrences of virtual inheritance. <em>Unfortunately, discussing this would dramatically increase the complexity of this topic, and because virtual inheritance is somewhat uncommon I didn't think it was worth it.</em>  </li>
+<li>These are 32bit binaries</li>
+</ol>
+
+<h5 id="moreaboutvtablelayout">More about vtable layout</h5>
+
+<p>Before we move forward, recall that in part 1, we described a vtable as a contiguous collection of function pointers in a data segment of the binary. We can also say that the array should only be referenced by its first element, because the other elements will be accessed as offsets in to this array.</p>
+
+<pre><code>.rodata:08048D48 off_8048D48     dd offset sub_8048B6E
+.rodata:08048D4C                 dd offset sub_8048BC2
+.rodata:08048D50                 dd offset sub_8048BE0
+</code></pre>
+
+<p>This is a section from a binary that seems to fit that definition. It is an array of 3 function pointers in the '.rodata' segment, and only the pointer at <code>0x08048D48</code> is referenced. It turns out that this <em>is</em> a vtable, so maybe this heuristic is good enough? If we were to compile the following code:</p>
+
+<script src="https://gist.github.com/ALSchwalm/5a8cd4928eb8e3c1d2993a7acc0099d1.js"></script>
+
+<p>We would expect there to be 5 vtables, one for <code>Mammal</code>, <code>Cat</code>, <code>Dog</code>, <code>Bird</code>, and <code>Bat</code>. But as you might have guessed, things aren't that simple. In fact there are 6 regions in the binary that meet the above criteria. It becomes clear why this happens when you consider the layout of an object with multiple inheritance.</p>
+
+<p><img src="../../../../content/images/2017/01/Bat-Layout--1-.png" alt=""></p>
+
+<p>Notice that <code>Bat</code> includes a complete instance (called subobjects) of <code>Bird</code> and <code>Mammal</code> as well as a <code>vptr</code> for each. These pointers point to different tables. So a type with multiple parents has a vtable in the binary for each one. The Itanium ABI refers to these as a "virtual table group".</p>
+
+<h5 id="virtualtablegroups">Virtual Table Groups</h5>
+
+<p>A virtual table group consists of a <em>primary table</em> for the first parent type, and an arbitrary number of <em>secondary tables</em>, one for each parent type after the first. These tables will be adjacent in the binary, in the order the parent types were declared in the source. With this in mind, we would expect the vtable group for <code>Bat</code> to be something like:</p>
+
+<table>  
+  <thead>
+    <tr>
+      <th>Offset</th>
+      <th>Description</th>
+      <th>Bat's vtable for</th>
+    </tr>
+  </thead>
+  <tr>
+    <td>0</td>
+    <td>Address of Destructor 1</td>
+    <td>Bird</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>Address of Destructor 2</td>
+    <td>Bird</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td>Address of Bat::Fly</td>
+    <td>Bird</td>
+  </tr>
+  <tr>
+    <td>12</td>
+    <td>Address of Destructor 1</td>
+    <td>Mammal</td>
+  </tr>
+  <tr>
+    <td>16</td>
+    <td>Address of Destructor 2</td>
+    <td>Mammal</td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td>Address of Mammal::walk</td>
+    <td>Mammal</td>
+  </tr>
+</table>
+
+<p>With each vtable taking 12 bytes. Recall from part 1 that there will be two destructors, and because <code>Bat</code> does not override <code>walk</code>, we would expect the <code>walk</code> from <code>Mammal</code> to appear in <code>Bat</code>'s table. However, if we examine the binary we don't see any place with 6 consecutive function pointers in the <code>.rodata</code> segment.</p>
+
+<p>If we look more closely at the Itanium specification, we can see why. A virtual table does not consist of just function pointers. In fact a vtable looks more like this:</p>
+
+<p><img src="../../../../content/images/2017/01/full_vtable--2-.png" alt=""></p>
+
+<p><figcaption>Itanium vtable layout (without virtual inheritance)</figcaption></p>
+
+<p>The <code>RTTI pointer</code> will typically point to an RTTI struct (that is also described by the Itanium spec). However, because we are assuming RTTI is disabled, it will always be 0. The offset to top has a value equal to the number of bytes that must be added to the <code>this</code> pointer to get the start of the object from some subobject. This is probably a little confusing, so to clarify, image the following code:</p>
+
+<script src="https://gist.github.com/ALSchwalm/4d31be0344b8d1ff61ebbea1a94b0f3b.js"></script>
+
+<p>These assignments to <code>b</code> and <code>m</code> are both valid. The first does not require any instructions. A <code>Bat</code> is a <code>Bird</code>, and because <code>Bird</code> is its first parent, the <code>Bird</code> subobject is at the very beginning of any <code>Bat</code> object. Thus, a pointer to a <code>Bat</code> is also a pointer to a <code>Bird</code>. This is just like normal, single inheritance.</p>
+
+<p>However, the assignment to <code>m</code> does require work. The <code>Mammal</code> subobject inside a <code>Bat</code> is not at the beginning, so the compiler must insert some instructions to add to <code>bat</code> to make it point to its <code>Mammal</code> subobject. The value added will be the size of <code>Bird</code> (and alignment). The negative of this value will be stored in the Offset to Top field.</p>
+
+<p>This Offset to Top component of the vtable allows us to easily identify vtable groups. <em>A group will consist of those consecutive vtables that have decreasing values in the Offset to Top</em>. Consider the following:</p>
+
+<p><img src="../../../../content/images/2017/01/2017-01-23-182702_576x703_scrot.png" alt=""></p>
+
+<p>These are the 6 vtables found in the binary built from the above source. Notice that table 2 has a value of -4 (0xFFFFFFFC as a signed int) for its Offset to Top, and all other tables have a value of 0. Also, each RTTI pointer is 0, as we expected. The -4 tells us two things:</p>
+
+<ol>
+<li>Table 2 is a secondary table in a vtable group (because offset to top is not 0)  </li>
+<li>The size of the type associated with table 1 is 4. Keep in mind that because tables 1 and 2 form a table group, the size of the type associated with <em>just</em> table 1 is actually the size of <em>part</em> of the object (i.e a subobject).</li>
+</ol>
+
+<h5 id="findingvtablesprogrammatically">Finding Vtables Programmatically</h5>
+
+<p>From the above, we can devise the following simple procedures to find vtable (groups) from a binary:</p>
+
+<script src="https://gist.github.com/ALSchwalm/2c8a16576d713bacdbc3f9df36c0e843.js"></script>
+
+<p>After running the above in the IDA python interpreter, you can execute <code>find_tablegroups()</code> to get a list of vtable group addresses. This could be combined with additional code to construct structures from each vtable, for example.</p>
+
+<p>However, just knowing where tablegroups are is not very useful. We need some information about the relationships between the types associated with the tables. Then, we will be able to generate a list of 'candidate' function calls for a virtual call-site, so long as we know the 'family' the type is associated with.</p>
+
+<h5 id="recoveringtyperelationships">Recovering Type Relationships</h5>
+
+<p>The simplest approach to recovering these relationships is to recognize that two vtables sharing a function pointer are necessarily related. We cannot recover the nature of that relationship, but it is enough to determine that they are in the same family.</p>
+
+<p>But we can go further by considering the behavior of constructors and destructors in C++. An constructor performs the following steps:</p>
+
+<ol>
+<li>Invoke the parent class's constructors  </li>
+<li>Initialize the <code>vptr</code>(s) to point to this type's vtable(s)  </li>
+<li>Initialize the members of the object  </li>
+<li>Run whatever other code is in the constructor</li>
+</ol>
+
+<p>The destructor performs essentially the opposite steps:</p>
+
+<ol>
+<li>Set the <code>vptr</code>(s) to point to this type's vtable(s)  </li>
+<li>Run whatever other code is in the destructor  </li>
+<li>Destroy the members of the object  </li>
+<li>Invoke the parent class's destructor</li>
+</ol>
+
+<p>Notice that the <code>vptr</code> is again set to point to the vtable. This seems odd until you consider that virtual function calls should still work during destruction. </p>
+
+<p>Suppose we modified the <code>Bird</code> destructor so it called <code>fly</code>. If you were to destruct a <code>Bat</code> object (which in turn called the <code>Bird</code> destructor when the <code>Bat</code> one was finished), it should call <code>Bird::fly</code> not <code>Bat::fly</code>, because the object is no longer a <code>Bat</code>. For this to work, the <code>Bird</code> destructor must update the <code>vptr</code>.</p>
+
+<p>So, we know that each destructor will call the parent type's destructor, and we know that these destructors will reference the vtable (to assign it to the vptr). We can therefore reconstruct the inheritance hierarchy for a type by "following the destructors". Similar logic can be used for Constructors as well. </p>
+
+<p>Consider the first entry in the first vtable (which we would expect to be a destructor):</p>
+
+<p><img src="../../../../content/images/2017/01/2017-01-23-184412_418x135_scrot.png" alt=""></p>
+
+<p>Notice that there are two assignments, and these are both address points of vtables. This is step 1 in the list above. These object does not seem to have any members, because it proceeds directly to step 4 and calls the two other destructors. We can confirm that these other functions are destructors because of their location in a vtable (at the start of table 6 and table 3). Doing this for the remaining tables this tells us that the inheritance hierarchy was laid out like:</p>
+
+<p><img src="../../../../content/images/2017/01/inheritance--1-.png" alt=""></p>
+
+<p>This matches the actual hierarchy from the source. There are two base classes and one class that has two parents.</p>
+
+<h5 id="identifyingconstructors">Identifying Constructors</h5>
+
+<p>By similar reasoning, we can find the constructors associated with a vtable by noting that the constructors will be <em>those functions that assign their vptr to a vtable address that are not destructors</em>. By applying this rule to the target, we discover that there are 5 such functions, one for each type:</p>
+
+<table>  
+  <thead>
+    <tr>
+      <th>Constructor</th>
+      <th>Table</th>
+    </tr>
+  </thead>
+  <tr>
+    <td>sub_8048AEC</td>
+    <td>Table 1/2</td>
+  </tr>
+  <tr>
+    <td>sub_8048A64</td>
+    <td>Table 3</td>
+  </tr>
+  <tr>
+    <td>sub_80489A8</td>
+    <td>Table 4</td>
+  </tr>
+  <tr>
+    <td>sub_80488EC</td>
+    <td>Table 5</td>
+  </tr>
+  <tr>
+    <td>sub_8048864</td>
+    <td>Table 6</td>
+  </tr>
+</table>
+
+<h5 id="devirtualize">Devirtualize</h5>
+
+<p>With this, we can look at the decompiled body of <code>main</code>:</p>
+
+<p><img src="../../../../content/images/2017/01/2017-01-23-185429_638x534_scrot.png" alt=""></p>
+
+<p>The virtual functions are clearly visible on lines 28 and 29. However, we can also identify constructors on lines 13, 16, 22, and 25 from the tables above. Using this knowledge, we can follow the process from part 1 to see the devirtualization:</p>
+
+<p><img src="../../../../content/images/2017/01/2017-01-23-195432_518x533_scrot.png" alt=""></p>
+
+<p>In the above screenshot, I have set <code>v0</code> to have type <code>type_8048D40*</code>. This is the type associated with table 1/2 and also with the constructor on line 13. Similarly, the constructor on line 16 is associated with table 5, which I have created a type for named <code>type_8048D98</code> (the are the addresses at which the tables start. I could just as easily have called them <code>table_5</code> or some such). The same thing could be done with <code>v2</code> and <code>v3</code> to see the alternate possibilities for lines 28 and 29.</p>
+
+<p>So, while the original source contained strings that would make identifying types and methods easy, we did not need any of them to perform our "devirtualization".</p>
+
+<h5 id="conclusions">Conclusions</h5>
+
+<p>This is still a very manual process, but we have come a bit further. We are now able to (approximately) automatically detect vtables. It is not hard to see how we will be able to automate the construction of the associated structures, and then perhaps the location of constructor calls. We could also imagine reconstructing type trees. In the next part, we will delve in to this a bit more. </p>
+        </section>
+
+        <footer class="post-footer">
+
+
+
+            <section class="author">
+                <h4><a href="../../../../author/adam/">Adam Schwalm</a></h4>
+
+                    <p>Read <a href="../../../../author/adam/">more posts</a> by this author.</p>
+                <div class="author-meta">
+                    
+                    
+                </div>
+            </section>
+
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=Reversing%20C%2B%2B%20Virtual%20Functions%3A%20Part%202&amp;url=https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+
+        </footer>
+
+    </article>
+</main>
+
+<aside class="read-next">
+    <a class="read-next-story prev no-cover" href="../../../../2016/12/17/reversing-c-virtual-functions/">
+        <section class="post">
+            <h2>Reversing C++ Virtual Functions: Part 1</h2>
+            <p>There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address…</p>
+        </section>
+    </a>
+</aside>
+
+
+
+        <footer class="site-footer clearfix">
+            <section class="copyright"><a href="../../../../">Security Through Obscurity</a> © 2017</section>
+            <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
+        </footer>
+
+    </div>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script>  
+    // Creates Captions from Alt tags
+    $(".post-content img").each(
+        function() {
+            // Let's put a caption if there is one
+            if ($(this).attr("alt")) {
+                $(this).wrap(
+                    '<figure class="image"></figure>'
+                ).after(
+                    '<figcaption>' +
+                    $(this).attr(
+                        "alt") +
+                    '</figcaption>'
+                );
+            }
+        });
+</script>
+    <script type="text/javascript" src="../../../../assets/js/jquery.fitvids.js?v=ccb1f74a60"></script>
+    <script type="text/javascript" src="../../../../assets/js/index.js?v=ccb1f74a60"></script>
+
+</body>

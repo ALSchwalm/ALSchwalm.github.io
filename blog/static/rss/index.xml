@@ -1,4 +1,211 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Security Through Obscurity</title><description>On reverse engineering, programming, and maybe some other stuff.</description><link>https://alschwalm.com/blog/static/</link><generator>Ghost 0.11</generator><lastBuildDate>Tue, 20 Dec 2016 00:01:07 GMT</lastBuildDate><atom:link href="https://alschwalm.com/blog/static/rss/index.xml" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>Reversing C++ Virtual Functions: Part 1</title><description>&lt;p&gt;There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands&lt;/p&gt;</description><link>https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/</link><guid isPermaLink="false">1774e608-8aad-4eab-964b-9ea6f22929d6</guid><dc:creator>Adam Schwalm</dc:creator><pubDate>Sat, 17 Dec 2016 22:04:31 GMT</pubDate><content:encoded>&lt;p&gt;There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands of classes and massive type hierarchies, so I think it is worth describing some techniques for reversing them. But before that I’m going to go through some more simple cases. If you are already familiar with virtual function reversing, then you my want to proceed directly to part 2.&lt;/p&gt;
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Security Through Obscurity</title><description>On reverse engineering, programming, and maybe some other stuff.</description><link>https://alschwalm.com/blog/static/</link><generator>Ghost 0.11</generator><lastBuildDate>Tue, 24 Jan 2017 03:15:29 GMT</lastBuildDate><atom:link href="https://alschwalm.com/blog/static/rss/index.xml" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>Reversing C++ Virtual Functions: Part 2</title><description>&lt;p&gt;In the &lt;a href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/"&gt;previous part&lt;/a&gt; I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create&lt;/p&gt;</description><link>https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/</link><guid isPermaLink="false">a88a9c7f-9cef-4f3a-a413-1ab89378d0be</guid><dc:creator>Adam Schwalm</dc:creator><pubDate>Tue, 24 Jan 2017 03:13:19 GMT</pubDate><content:encoded>&lt;p&gt;In the &lt;a href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/"&gt;previous part&lt;/a&gt; I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create these structures and relationships.&lt;/p&gt;
+
+&lt;p&gt;So, in this part I will go through a more precise description of the layout of vtables and how we can find them programmatically. I will also show how we can sometimes recover relationships between these vtables (and therefore, between the types they are associated with).&lt;/p&gt;
+
+&lt;p&gt;But first I need to describe the set of binaries this is applicable to. In the first part I mentioned that most things related to vtable layout were not specified in the standard, and so tended to vary from compiler to compiler. This is because the C++ standard needs to be applicable regardless of the underlying architecture. It would be unfortunate if the spec required some specific vtable layout that was inefficient on some architecture. The compiler developers for that architecture would be required to choose between performance and compliance (more than they already are).&lt;/p&gt;
+
+&lt;p&gt;However, because programs produced by different compilers frequently need to interact (most notable, for dynamic linking), compiler developers agreed to a kind of supplemental specification for things like vtable layout, exception implementation and others. The most common of these is the &lt;a href="https://mentorembedded.github.io/cxx-abi/abi.html"&gt;Itanium C++ ABI&lt;/a&gt;. This standard is implemented by GCC, clang, ICC, and many other compilers (but notably, not Visual Studio). The descriptions I give will be applicable these compilers.&lt;/p&gt;
+
+&lt;p&gt;The Itanium ABI is also still ambiguous in some areas. For example, it does not state what segments should be used to store vtables. So I will further specify that I'm describing GCC's particular brand of Itanium. So in essence, I am describing the highlighted section:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/01/GCC_location-1.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;Additionally, the following assumptions are made:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;RTTI is disabled (if it were on, this would be much easier)  &lt;/li&gt;
+&lt;li&gt;The program does not contain occurrences of virtual inheritance. &lt;em&gt;Unfortunately, discussing this would dramatically increase the complexity of this topic, and because virtual inheritance is somewhat uncommon I didn't think it was worth it.&lt;/em&gt;  &lt;/li&gt;
+&lt;li&gt;These are 32bit binaries&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h5 id="moreaboutvtablelayout"&gt;More about vtable layout&lt;/h5&gt;
+
+&lt;p&gt;Before we move forward, recall that in part 1, we described a vtable as a contiguous collection of function pointers in a data segment of the binary. We can also say that the array should only be referenced by its first element, because the other elements will be accessed as offsets in to this array.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;.rodata:08048D48 off_8048D48     dd offset sub_8048B6E
+.rodata:08048D4C                 dd offset sub_8048BC2
+.rodata:08048D50                 dd offset sub_8048BE0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a section from a binary that seems to fit that definition. It is an array of 3 function pointers in the '.rodata' segment, and only the pointer at &lt;code&gt;0x08048D48&lt;/code&gt; is referenced. It turns out that this &lt;em&gt;is&lt;/em&gt; a vtable, so maybe this heuristic is good enough? If we were to compile the following code:&lt;/p&gt;
+
+&lt;script src="https://gist.github.com/ALSchwalm/5a8cd4928eb8e3c1d2993a7acc0099d1.js"&gt;&lt;/script&gt;
+
+&lt;p&gt;We would expect there to be 5 vtables, one for &lt;code&gt;Mammal&lt;/code&gt;, &lt;code&gt;Cat&lt;/code&gt;, &lt;code&gt;Dog&lt;/code&gt;, &lt;code&gt;Bird&lt;/code&gt;, and &lt;code&gt;Bat&lt;/code&gt;. But as you might have guessed, things aren't that simple. In fact there are 6 regions in the binary that meet the above criteria. It becomes clear why this happens when you consider the layout of an object with multiple inheritance.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/01/Bat-Layout--1-.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;Notice that &lt;code&gt;Bat&lt;/code&gt; includes a complete instance (called subobjects) of &lt;code&gt;Bird&lt;/code&gt; and &lt;code&gt;Mammal&lt;/code&gt; as well as a &lt;code&gt;vptr&lt;/code&gt; for each. These pointers point to different tables. So a type with multiple parents has a vtable in the binary for each one. The Itanium ABI refers to these as a "virtual table group".&lt;/p&gt;
+
+&lt;h5 id="virtualtablegroups"&gt;Virtual Table Groups&lt;/h5&gt;
+
+&lt;p&gt;A virtual table group consists of a &lt;em&gt;primary table&lt;/em&gt; for the first parent type, and an arbitrary number of &lt;em&gt;secondary tables&lt;/em&gt;, one for each parent type after the first. These tables will be adjacent in the binary, in the order the parent types were declared in the source. With this in mind, we would expect the vtable group for &lt;code&gt;Bat&lt;/code&gt; to be something like:&lt;/p&gt;
+
+&lt;table&gt;  
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Offset&lt;/th&gt;
+      &lt;th&gt;Description&lt;/th&gt;
+      &lt;th&gt;Bat's vtable for&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tr&gt;
+    &lt;td&gt;0&lt;/td&gt;
+    &lt;td&gt;Address of Destructor 1&lt;/td&gt;
+    &lt;td&gt;Bird&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;4&lt;/td&gt;
+    &lt;td&gt;Address of Destructor 2&lt;/td&gt;
+    &lt;td&gt;Bird&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;8&lt;/td&gt;
+    &lt;td&gt;Address of Bat::Fly&lt;/td&gt;
+    &lt;td&gt;Bird&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;12&lt;/td&gt;
+    &lt;td&gt;Address of Destructor 1&lt;/td&gt;
+    &lt;td&gt;Mammal&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;16&lt;/td&gt;
+    &lt;td&gt;Address of Destructor 2&lt;/td&gt;
+    &lt;td&gt;Mammal&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;20&lt;/td&gt;
+    &lt;td&gt;Address of Mammal::walk&lt;/td&gt;
+    &lt;td&gt;Mammal&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;p&gt;With each vtable taking 12 bytes. Recall from part 1 that there will be two destructors, and because &lt;code&gt;Bat&lt;/code&gt; does not override &lt;code&gt;walk&lt;/code&gt;, we would expect the &lt;code&gt;walk&lt;/code&gt; from &lt;code&gt;Mammal&lt;/code&gt; to appear in &lt;code&gt;Bat&lt;/code&gt;'s table. However, if we examine the binary we don't see any place with 6 consecutive function pointers in the &lt;code&gt;.rodata&lt;/code&gt; segment.&lt;/p&gt;
+
+&lt;p&gt;If we look more closely at the Itanium specification, we can see why. A virtual table does not consist of just function pointers. In fact a vtable looks more like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/01/full_vtable--2-.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;figcaption&gt;Itanium vtable layout (without virtual inheritance)&lt;/figcaption&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;RTTI pointer&lt;/code&gt; will typically point to an RTTI struct (that is also described by the Itanium spec). However, because we are assuming RTTI is disabled, it will always be 0. The offset to top has a value equal to the number of bytes that must be added to the &lt;code&gt;this&lt;/code&gt; pointer to get the start of the object from some subobject. This is probably a little confusing, so to clarify, image the following code:&lt;/p&gt;
+
+&lt;script src="https://gist.github.com/ALSchwalm/4d31be0344b8d1ff61ebbea1a94b0f3b.js"&gt;&lt;/script&gt;
+
+&lt;p&gt;These assignments to &lt;code&gt;b&lt;/code&gt; and &lt;code&gt;m&lt;/code&gt; are both valid. The first does not require any instructions. A &lt;code&gt;Bat&lt;/code&gt; is a &lt;code&gt;Bird&lt;/code&gt;, and because &lt;code&gt;Bird&lt;/code&gt; is its first parent, the &lt;code&gt;Bird&lt;/code&gt; subobject is at the very beginning of any &lt;code&gt;Bat&lt;/code&gt; object. Thus, a pointer to a &lt;code&gt;Bat&lt;/code&gt; is also a pointer to a &lt;code&gt;Bird&lt;/code&gt;. This is just like normal, single inheritance.&lt;/p&gt;
+
+&lt;p&gt;However, the assignment to &lt;code&gt;m&lt;/code&gt; does require work. The &lt;code&gt;Mammal&lt;/code&gt; subobject inside a &lt;code&gt;Bat&lt;/code&gt; is not at the beginning, so the compiler must insert some instructions to add to &lt;code&gt;bat&lt;/code&gt; to make it point to its &lt;code&gt;Mammal&lt;/code&gt; subobject. The value added will be the size of &lt;code&gt;Bird&lt;/code&gt; (and alignment). The negative of this value will be stored in the Offset to Top field.&lt;/p&gt;
+
+&lt;p&gt;This Offset to Top component of the vtable allows us to easily identify vtable groups. &lt;em&gt;A group will consist of those consecutive vtables that have decreasing values in the Offset to Top&lt;/em&gt;. Consider the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/01/2017-01-23-182702_576x703_scrot.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;These are the 6 vtables found in the binary built from the above source. Notice that table 2 has a value of -4 (0xFFFFFFFC as a signed int) for its Offset to Top, and all other tables have a value of 0. Also, each RTTI pointer is 0, as we expected. The -4 tells us two things:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Table 2 is a secondary table in a vtable group (because offset to top is not 0)  &lt;/li&gt;
+&lt;li&gt;The size of the type associated with table 1 is 4. Keep in mind that because tables 1 and 2 form a table group, the size of the type associated with &lt;em&gt;just&lt;/em&gt; table 1 is actually the size of &lt;em&gt;part&lt;/em&gt; of the object (i.e a subobject).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h5 id="findingvtablesprogrammatically"&gt;Finding Vtables Programmatically&lt;/h5&gt;
+
+&lt;p&gt;From the above, we can devise the following simple procedures to find vtable (groups) from a binary:&lt;/p&gt;
+
+&lt;script src="https://gist.github.com/ALSchwalm/2c8a16576d713bacdbc3f9df36c0e843.js"&gt;&lt;/script&gt;
+
+&lt;p&gt;After running the above in the IDA python interpreter, you can execute &lt;code&gt;find_tablegroups()&lt;/code&gt; to get a list of vtable group addresses. This could be combined with additional code to construct structures from each vtable, for example.&lt;/p&gt;
+
+&lt;p&gt;However, just knowing where tablegroups are is not very useful. We need some information about the relationships between the types associated with the tables. Then, we will be able to generate a list of 'candidate' function calls for a virtual call-site, so long as we know the 'family' the type is associated with.&lt;/p&gt;
+
+&lt;h5 id="recoveringtyperelationships"&gt;Recovering Type Relationships&lt;/h5&gt;
+
+&lt;p&gt;The simplest approach to recovering these relationships is to recognize that two vtables sharing a function pointer are necessarily related. We cannot recover the nature of that relationship, but it is enough to determine that they are in the same family.&lt;/p&gt;
+
+&lt;p&gt;But we can go further by considering the behavior of constructors and destructors in C++. An constructor performs the following steps:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Invoke the parent class's constructors  &lt;/li&gt;
+&lt;li&gt;Initialize the &lt;code&gt;vptr&lt;/code&gt;(s) to point to this type's vtable(s)  &lt;/li&gt;
+&lt;li&gt;Initialize the members of the object  &lt;/li&gt;
+&lt;li&gt;Run whatever other code is in the constructor&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The destructor performs essentially the opposite steps:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Set the &lt;code&gt;vptr&lt;/code&gt;(s) to point to this type's vtable(s)  &lt;/li&gt;
+&lt;li&gt;Run whatever other code is in the destructor  &lt;/li&gt;
+&lt;li&gt;Destroy the members of the object  &lt;/li&gt;
+&lt;li&gt;Invoke the parent class's destructor&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Notice that the &lt;code&gt;vptr&lt;/code&gt; is again set to point to the vtable. This seems odd until you consider that virtual function calls should still work during destruction. &lt;/p&gt;
+
+&lt;p&gt;Suppose we modified the &lt;code&gt;Bird&lt;/code&gt; destructor so it called &lt;code&gt;fly&lt;/code&gt;. If you were to destruct a &lt;code&gt;Bat&lt;/code&gt; object (which in turn called the &lt;code&gt;Bird&lt;/code&gt; destructor when the &lt;code&gt;Bat&lt;/code&gt; one was finished), it should call &lt;code&gt;Bird::fly&lt;/code&gt; not &lt;code&gt;Bat::fly&lt;/code&gt;, because the object is no longer a &lt;code&gt;Bat&lt;/code&gt;. For this to work, the &lt;code&gt;Bird&lt;/code&gt; destructor must update the &lt;code&gt;vptr&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So, we know that each destructor will call the parent type's destructor, and we know that these destructors will reference the vtable (to assign it to the vptr). We can therefore reconstruct the inheritance hierarchy for a type by "following the destructors". Similar logic can be used for Constructors as well. &lt;/p&gt;
+
+&lt;p&gt;Consider the first entry in the first vtable (which we would expect to be a destructor):&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/01/2017-01-23-184412_418x135_scrot.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;Notice that there are two assignments, and these are both address points of vtables. This is step 1 in the list above. These object does not seem to have any members, because it proceeds directly to step 4 and calls the two other destructors. We can confirm that these other functions are destructors because of their location in a vtable (at the start of table 6 and table 3). Doing this for the remaining tables this tells us that the inheritance hierarchy was laid out like:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/01/inheritance--1-.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;This matches the actual hierarchy from the source. There are two base classes and one class that has two parents.&lt;/p&gt;
+
+&lt;h5 id="identifyingconstructors"&gt;Identifying Constructors&lt;/h5&gt;
+
+&lt;p&gt;By similar reasoning, we can find the constructors associated with a vtable by noting that the constructors will be &lt;em&gt;those functions that assign their vptr to a vtable address that are not destructors&lt;/em&gt;. By applying this rule to the target, we discover that there are 5 such functions, one for each type:&lt;/p&gt;
+
+&lt;table&gt;  
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Constructor&lt;/th&gt;
+      &lt;th&gt;Table&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tr&gt;
+    &lt;td&gt;sub_8048AEC&lt;/td&gt;
+    &lt;td&gt;Table 1/2&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;sub_8048A64&lt;/td&gt;
+    &lt;td&gt;Table 3&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;sub_80489A8&lt;/td&gt;
+    &lt;td&gt;Table 4&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;sub_80488EC&lt;/td&gt;
+    &lt;td&gt;Table 5&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;sub_8048864&lt;/td&gt;
+    &lt;td&gt;Table 6&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;h5 id="devirtualize"&gt;Devirtualize&lt;/h5&gt;
+
+&lt;p&gt;With this, we can look at the decompiled body of &lt;code&gt;main&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/01/2017-01-23-185429_638x534_scrot.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;The virtual functions are clearly visible on lines 28 and 29. However, we can also identify constructors on lines 13, 16, 22, and 25 from the tables above. Using this knowledge, we can follow the process from part 1 to see the devirtualization:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/01/2017-01-23-195432_518x533_scrot.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;In the above screenshot, I have set &lt;code&gt;v0&lt;/code&gt; to have type &lt;code&gt;type_8048D40*&lt;/code&gt;. This is the type associated with table 1/2 and also with the constructor on line 13. Similarly, the constructor on line 16 is associated with table 5, which I have created a type for named &lt;code&gt;type_8048D98&lt;/code&gt; (the are the addresses at which the tables start. I could just as easily have called them &lt;code&gt;table_5&lt;/code&gt; or some such). The same thing could be done with &lt;code&gt;v2&lt;/code&gt; and &lt;code&gt;v3&lt;/code&gt; to see the alternate possibilities for lines 28 and 29.&lt;/p&gt;
+
+&lt;p&gt;So, while the original source contained strings that would make identifying types and methods easy, we did not need any of them to perform our "devirtualization".&lt;/p&gt;
+
+&lt;h5 id="conclusions"&gt;Conclusions&lt;/h5&gt;
+
+&lt;p&gt;This is still a very manual process, but we have come a bit further. We are now able to (approximately) automatically detect vtables. It is not hard to see how we will be able to automate the construction of the associated structures, and then perhaps the location of constructor calls. We could also imagine reconstructing type trees. In the next part, we will delve in to this a bit more. &lt;/p&gt;</content:encoded></item><item><title>Reversing C++ Virtual Functions: Part 1</title><description>&lt;p&gt;There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands&lt;/p&gt;</description><link>https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/</link><guid isPermaLink="false">1774e608-8aad-4eab-964b-9ea6f22929d6</guid><dc:creator>Adam Schwalm</dc:creator><pubDate>Sat, 17 Dec 2016 22:04:31 GMT</pubDate><content:encoded>&lt;p&gt;There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands of classes and massive type hierarchies, so I think it is worth describing some techniques for reversing them. But before that I’m going to go through some more simple cases. If you are already familiar with virtual function reversing, then you my want to proceed directly to part 2.&lt;/p&gt;
 
 &lt;p&gt;It’s also worth noting the following:&lt;/p&gt;
 
