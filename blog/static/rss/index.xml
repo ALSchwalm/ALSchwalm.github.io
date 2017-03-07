@@ -1,4 +1,79 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Security Through Obscurity</title><description>On reverse engineering, programming, and maybe some other stuff.</description><link>https://alschwalm.com/blog/static/</link><generator>Ghost 0.11</generator><lastBuildDate>Tue, 24 Jan 2017 03:15:29 GMT</lastBuildDate><atom:link href="https://alschwalm.com/blog/static/rss/index.xml" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>Reversing C++ Virtual Functions: Part 2</title><description>&lt;p&gt;In the &lt;a href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/"&gt;previous part&lt;/a&gt; I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create&lt;/p&gt;</description><link>https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/</link><guid isPermaLink="false">a88a9c7f-9cef-4f3a-a413-1ab89378d0be</guid><dc:creator>Adam Schwalm</dc:creator><pubDate>Tue, 24 Jan 2017 03:13:19 GMT</pubDate><content:encoded>&lt;p&gt;In the &lt;a href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/"&gt;previous part&lt;/a&gt; I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create these structures and relationships.&lt;/p&gt;
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Security Through Obscurity</title><description>On reverse engineering, programming, and maybe some other stuff.</description><link>https://alschwalm.com/blog/static/</link><generator>Ghost 0.11</generator><lastBuildDate>Tue, 07 Mar 2017 00:23:18 GMT</lastBuildDate><atom:link href="https://alschwalm.com/blog/static/rss/index.xml" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>Exploring Dynamic Dispatch in Rust</title><description>&lt;p&gt;Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical mistakes please let me know and I will try to correct them. With that out of the way, lets get started.&lt;/p&gt;
+
+&lt;p&gt;My real&lt;/p&gt;</description><link>https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/</link><guid isPermaLink="false">1d83f50c-4ce9-4919-ba4f-151053a951f5</guid><dc:creator>Adam Schwalm</dc:creator><pubDate>Tue, 07 Mar 2017 00:17:27 GMT</pubDate><content:encoded>&lt;p&gt;Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical mistakes please let me know and I will try to correct them. With that out of the way, lets get started.&lt;/p&gt;
+
+&lt;p&gt;My real motivation for taking a closer look at dynamic dispatch can be seen in the following code snippet. Suppose I want to create a struct &lt;code&gt;CloningLab&lt;/code&gt; that contains a vector of trait objects (in this case, &lt;code&gt;Mammal&lt;/code&gt;):&lt;/p&gt;
+
+&lt;script src="https://gist.github.com/ALSchwalm/b43986e11db2d864ee9adf090dedfa45.js"&gt;&lt;/script&gt;
+
+&lt;p&gt;This works fine. You can iterate over the vector of subjects and call &lt;code&gt;run&lt;/code&gt; or &lt;code&gt;walk&lt;/code&gt; as you would expect. However, things break down when you try to add an additional trait to the trait object bounds like:&lt;/p&gt;
+
+&lt;script src="https://gist.github.com/ALSchwalm/d56ccd574a3b517ad20a7c6e5dc3f3f8.js"&gt;&lt;/script&gt;
+
+&lt;p&gt;This fails with the the following error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;error[E0225]: only the builtin traits can be used as closure or object bounds
+ --&amp;gt; test1.rs:3:32
+  |
+3 |     subjects: Vec&amp;lt;Box&amp;lt;Mammal + Clone&amp;gt;&amp;gt;,
+  |                                ^^^^^ non-builtin trait used as bounds
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And I found this surprising. In my mind, a trait object with multiple bounds would be analogous to multiple inheritance in C++. I would expect the object to have multiple vpointers for each 'base', and do dispatch through the appropriate one. Given that rust is still a somewhat young language, I could appreciate why the developers might not want to introduce that complexity immediately (being stuck with a poor design forever would be a high cost for little reward), but I wanted to work out exactly how such a system might work (or not work).&lt;/p&gt;
+
+&lt;h5 id="vtablesinrust"&gt;Vtables in Rust&lt;/h5&gt;
+
+&lt;p&gt;Like C++, dynamic dispatch is achieved in Rust  though a table of function pointers (described &lt;a href="https://doc.rust-lang.org/book/trait-objects.html#representation"&gt;here&lt;/a&gt; in the rust docs). According to that documentation, the memory layout of a &lt;code&gt;Mammal&lt;/code&gt; trait object made from a &lt;code&gt;Cat&lt;/code&gt; will consist of two pointers arranged like:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/03/cat_layout-2.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;I was surprised to see that the data members of the object had an additional layer of indirection. This is unlike the (typical) C++ representation which would look this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/03/cat_layout_cpp.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;With the vtable pointer first and the data members immediately following. The rust approach is interesting. It incurs a cost when 'constructing' a trait object, unlike the C++ approach in which a cast to a base pointer is free (or just some addition for multiple inheritance). But this cost is very minor. The rust approach has the benefit that an object does not have to store the vtable pointer if it is never used in a polymorphic context. I think it is fair to say that rust encourages the use of monomorphism, so this is probably a good trade-off.&lt;/p&gt;
+
+&lt;h5 id="traitobjectswithmultiplebounds"&gt;Trait Objects with Multiple Bounds&lt;/h5&gt;
+
+&lt;p&gt;Returning to the original problem, lets consider how it is resolved in C++. If we have multiple traits (purely abstract classes) that we implement for some structure, then an instance of that structure will have the following layout (e.x., Mammal and Clone):&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/03/cat_and_clone_cpp-1.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;Notice that we now have multiple vtable pointers, one for each base class &lt;code&gt;Cat&lt;/code&gt; inherits from (that contains virtual functions). To convert a &lt;code&gt;Cat*&lt;/code&gt; to a &lt;code&gt;Mammal*&lt;/code&gt;, we don't need to do anything, but to convert a &lt;code&gt;Cat*&lt;/code&gt; to a &lt;code&gt;Clone*&lt;/code&gt;, the compiler will add 8 bytes (assuming &lt;code&gt;sizeof(void*) == 8&lt;/code&gt;) to the &lt;code&gt;this&lt;/code&gt; pointer.&lt;/p&gt;
+
+&lt;p&gt;It is easy to imagine a similar thing for rust:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/03/cat_clone_rust_candidate_1-1.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;So there are now two vtable pointers in the trait object. If the compiler needs to perform dynamic dispatch on a &lt;code&gt;Mammal + Clone&lt;/code&gt; trait object, it can access the appropriate entry in the appropriate vtable and perform the call. Because rust does not (yet) support struct inheritance, the problem of determining the correct subobject to pass as &lt;code&gt;self&lt;/code&gt;, does not exist. &lt;code&gt;self&lt;/code&gt; will always be whatever is pointed at by the &lt;code&gt;data&lt;/code&gt; pointer.&lt;/p&gt;
+
+&lt;p&gt;This seems like it would work well, but this approach also has some redundancy. We have multiple copies of the type's size, alignment, and &lt;code&gt;drop&lt;/code&gt; pointer. We can eliminate this redundancy by combining the vtables. This is essentially what happens when you perform trait inheritance like:&lt;/p&gt;
+
+&lt;script src="https://gist.github.com/ALSchwalm/b86e7753e26b57776bb00ef46aac6784.js"&gt;&lt;/script&gt;
+
+&lt;p&gt;Using trait inheritance in this way is a commonly suggested trick to get around the normal limitation of trait objects. The use of trait inheritance produces a single vtable without any redundancy. So the memory layout looks like:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://alschwalm.com/blog/static/content/images/2017/03/clone_mammal_rust-1.png" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;Much simpler! And you can currently do this! Perhaps what we really want is for the compiler to generate a trait like this for us when we try to make a trait object with multiple bounds. But hold on, there are some significant limitations. Namely, you cannot convert a trait object of &lt;code&gt;CloneMammal&lt;/code&gt; in to a trait object of &lt;code&gt;Clone&lt;/code&gt;. This seems like very strange behavior, but it is not hard to see why such a conversion won't work.&lt;/p&gt;
+
+&lt;p&gt;Suppose you attempt to write something like:&lt;/p&gt;
+
+&lt;script src="https://gist.github.com/ALSchwalm/a1acc010590aac091a4d0c968f6024a2.js"&gt;&lt;/script&gt;
+
+&lt;p&gt;Line 10 must fail to compile because the compiler cannot possibly find the appropriate vtable to put in the trait object. It only knows that the object being referenced implements &lt;code&gt;CloneMammal&lt;/code&gt;, but it doesn't know which one. Of course, we can tell that it must be a &lt;code&gt;Cat&lt;/code&gt;, but what if the code was something like:&lt;/p&gt;
+
+&lt;script src="https://gist.github.com/ALSchwalm/fc532dbdae257a03c070d02f7e2b9be1.js"&gt;&lt;/script&gt;
+
+&lt;p&gt;The problem is more clear here. How can the compiler know what vtable to put in the trait object being constructed on line 17? If &lt;code&gt;clone_mammal&lt;/code&gt; refers to a &lt;code&gt;Cat&lt;/code&gt;, then it should be the &lt;code&gt;Cat&lt;/code&gt; vtable for &lt;code&gt;Clone&lt;/code&gt;. If it refers to a &lt;code&gt;Dog&lt;/code&gt; then it should be the &lt;code&gt;Dog&lt;/code&gt; vtable for &lt;code&gt;Clone&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So the trait-inheritance approach has this limitation. You cannot convert a trait object in to any other kind of trait object, even when the trait object you want is &lt;em&gt;more specific&lt;/em&gt; than the one you already have.&lt;/p&gt;
+
+&lt;p&gt;The multiple vtable pointer approach seems like a good way forward to allowing trait objects with multiple bounds. It is trivial to convert to a less-bounded trait object with that setup. The vtable the compiler should use is simply whatever is already &lt;code&gt;Clone&lt;/code&gt; vtable pointer slot (the second pointer in diagram 4).&lt;/p&gt;
+
+&lt;h5 id="conclusions"&gt;Conclusions&lt;/h5&gt;
+
+&lt;p&gt;I hope going through this was a useful exercise to some readers. It certainly helped me organize how I was thinking about trait objects. In practice, I think this is not really a pressing issue, the restriction was just surprising to me.&lt;/p&gt;</content:encoded></item><item><title>Reversing C++ Virtual Functions: Part 2</title><description>&lt;p&gt;In the &lt;a href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/"&gt;previous part&lt;/a&gt; I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create&lt;/p&gt;</description><link>https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/</link><guid isPermaLink="false">a88a9c7f-9cef-4f3a-a413-1ab89378d0be</guid><dc:creator>Adam Schwalm</dc:creator><pubDate>Tue, 24 Jan 2017 03:13:19 GMT</pubDate><content:encoded>&lt;p&gt;In the &lt;a href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/"&gt;previous part&lt;/a&gt; I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there were several limitations to that approach, namely that it is very manual. If the target binary contains thousands of vtables, it is not practical to manually locate the tables and create these structures and relationships.&lt;/p&gt;
 
 &lt;p&gt;So, in this part I will go through a more precise description of the layout of vtables and how we can find them programmatically. I will also show how we can sometimes recover relationships between these vtables (and therefore, between the types they are associated with).&lt;/p&gt;
 
@@ -205,7 +280,7 @@
 
 &lt;h5 id="conclusions"&gt;Conclusions&lt;/h5&gt;
 
-&lt;p&gt;This is still a very manual process, but we have come a bit further. We are now able to (approximately) automatically detect vtables. It is not hard to see how we will be able to automate the construction of the associated structures, and then perhaps the location of constructor calls. We could also imagine reconstructing type trees. In the next part, we will delve in to this a bit more. &lt;/p&gt;</content:encoded></item><item><title>Reversing C++ Virtual Functions: Part 1</title><description>&lt;p&gt;There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands&lt;/p&gt;</description><link>https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/</link><guid isPermaLink="false">1774e608-8aad-4eab-964b-9ea6f22929d6</guid><dc:creator>Adam Schwalm</dc:creator><pubDate>Sat, 17 Dec 2016 22:04:31 GMT</pubDate><content:encoded>&lt;p&gt;There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands of classes and massive type hierarchies, so I think it is worth describing some techniques for reversing them. But before that I’m going to go through some more simple cases. If you are already familiar with virtual function reversing, then you my want to proceed directly to part 2.&lt;/p&gt;
+&lt;p&gt;This is still a very manual process, but we have come a bit further. We are now able to (approximately) automatically detect vtables. It is not hard to see how we will be able to automate the construction of the associated structures, and then perhaps the location of constructor calls. We could also imagine reconstructing type trees. In the next part, we will delve in to this a bit more. &lt;/p&gt;</content:encoded></item><item><title>Reversing C++ Virtual Functions: Part 1</title><description>&lt;p&gt;There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands&lt;/p&gt;</description><link>https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/</link><guid isPermaLink="false">1774e608-8aad-4eab-964b-9ea6f22929d6</guid><dc:creator>Adam Schwalm</dc:creator><pubDate>Sat, 17 Dec 2016 22:04:31 GMT</pubDate><content:encoded>&lt;p&gt;There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands of classes and massive type hierarchies, so I think it is worth describing some techniques for reversing them. But before that I’m going to go through some more simple cases. If you are already familiar with virtual function reversing, then you my want to proceed directly to &lt;a href="https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/"&gt;part 2&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;It’s also worth noting the following:&lt;/p&gt;
 
