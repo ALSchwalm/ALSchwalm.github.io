@@ -1,306 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-    <title>Reversing C++ Virtual Functions: Part 1</title>
-    <meta name="description" content="">
 
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reversing C++ Virtual Functions: Part 1</title>
 
-    <link rel="shortcut icon" href="../../../../favicon.ico">
 
-    <link rel="stylesheet" type="text/css" href="../../../../assets/css/screen.css?v=24e9aa9fe4">
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic%7COpen+Sans:700,400">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="origin" />
+  <meta name="generator" content="Pelican" />
+<link href="../../../../2016/12/17/reversing-c-virtual-functions/" rel="canonical" />
+  <!-- Feed -->
+      <link href="https://alschwalm.com/blog/static/rss/" type="application/atom+xml" rel="alternate" title="Security Through Obscurity Full Atom Feed" />
 
-    <link rel="canonical" href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/">
-    <meta name="referrer" content="no-referrer-when-downgrade">
-    <link rel="amphtml" href="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/amp/">
-    
-    <meta property="og:site_name" content="Security Through Obscurity">
-    <meta property="og:type" content="article">
-    <meta property="og:title" content="Reversing C++ Virtual Functions: Part 1">
-    <meta property="og:description" content="There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands">
-    <meta property="og:url" content="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/">
-    <meta property="article:published_time" content="2016-12-17T22:04:31.000Z">
-    <meta property="article:modified_time" content="2017-03-07T00:21:51.000Z">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Reversing C++ Virtual Functions: Part 1">
-    <meta name="twitter:description" content="There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands">
-    <meta name="twitter:url" content="https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/">
-    <meta name="twitter:label1" content="Written by">
-    <meta name="twitter:data1" content="Adam Schwalm">
+  <link href="../../../../theme/css/style.css" type="text/css" rel="stylesheet" />
+
+  <!-- Code highlight color scheme -->
+      <link href="../../../../theme/css/code_blocks/github.css" rel="stylesheet">
+
+
+  <!-- Custom fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300' rel='stylesheet' type='text/css' />
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+
+
+    <meta name="description" content="There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to...">
+
+    <meta name="author" content="Adam Schwalm">
+
+    <meta name="tags" content="reverse-engineering">
+
+
+
+
+<!-- Open Graph -->
+<meta prefix="og: http://ogp.me/ns#" property="og:site_name" content="Security Through Obscurity"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:title" content="Reversing C++ Virtual Functions: Part 1"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:description" content="There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to..."/>
+<meta prefix="og: http://ogp.me/ns#" property="og:locale" content="en_US"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:url" content="../../../../2016/12/17/reversing-c-virtual-functions/"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:type" content="article"/>
+<meta prefix="og: http://ogp.me/ns#" property="article:published_time" content="2016-12-17 00:00:00-06:00"/>
+<meta prefix="og: http://ogp.me/ns#" property="article:modified_time" content=""/>
+<meta prefix="og: http://ogp.me/ns#" property="article:author" content="../../../../author/adam-schwalm.html">
+<meta prefix="og: http://ogp.me/ns#" property="article:section" content="Reverse Engineering"/>
+<meta prefix="og: http://ogp.me/ns#" property="article:tag" content="reverse-engineering"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:image" content="../../../../theme/images/post-bg.jpg">
+
+<!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@alschwalm">
-    
-    <script type="application/ld+json">
+    <meta name="twitter:title" content="Reversing C++ Virtual Functions: Part 1">
+    <meta name="twitter:url" content="../../../../2016/12/17/reversing-c-virtual-functions/">
+
+        <meta name="twitter:image:src" content="../../../../theme/images/post-bg.jpg">
+
+      <meta name="twitter:description" content="There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to...">
+
+<script type="application/ld+json">
 {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "publisher": {
-        "@type": "Organization",
-        "name": "Security Through Obscurity",
-        "logo": "https://alschwalm.com/blog/static/ghost/img/ghosticon.jpg"
-    },
-    "author": {
-        "@type": "Person",
-        "name": "Adam Schwalm",
-        "url": "https://alschwalm.com/blog/static/author/adam/",
-        "sameAs": []
-    },
-    "headline": "Reversing C++ Virtual Functions: Part 1",
-    "url": "https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/",
-    "datePublished": "2016-12-17T22:04:31.000Z",
-    "dateModified": "2017-03-07T00:21:51.000Z",
-    "description": "There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands",
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "http://localhost:2368"
-    }
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "name": "Reversing C++ Virtual Functions: Part 1",
+  "headline": "Reversing C++ Virtual Functions: Part 1",
+  "datePublished": "2016-12-17 00:00:00-06:00",
+  "dateModified": "",
+  "author": {
+    "@type": "Person",
+    "name": "Adam Schwalm",
+    "url": "../../../../author/adam-schwalm.html"
+  },
+  "image": "../../../../theme/images/post-bg.jpg",
+  "url": "../../../../2016/12/17/reversing-c-virtual-functions/",
+  "description": "There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to..."
 }
-    </script>
-
-    <meta name="generator" content="Ghost 0.11">
-    <link rel="alternate" type="application/rss+xml" title="Security Through Obscurity" href="https://alschwalm.com/blog/static/rss/">
-    <style>  
-.post .post-content figcaption {
-    font-weight: 400;
-    font-style: italic;
-    font-size: 16px;
-    line-height: 1.3;
-    color: #666665;
-    outline: 0;
-    z-index: 300;
-    text-align: center;
-}
-</style>
-<script>
-   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-   ga('create', 'UA-89212918-1', 'auto');
-   ga('send', 'pageview');
-
 </script>
 </head>
-<body class="post-template nav-closed">
+<!-- TODO : Body class -->
+<body class="home-template">
 
-    <div class="nav">
-    <h3 class="nav-title">Menu</h3>
-    <a href="index.html#" class="nav-close">
-        <span class="hidden">Close</span>
-    </a>
+<nav id="menu">
+  <a class="close-button">Close</a>
+  <div class="nav-wrapper">
+    <p class="nav-label">Menu</p>
     <ul>
-            <li class="nav-home" role="presentation"><a href="https://alschwalm.com/blog/static/">Home</a></li>
+
+
+        <li class="nav-rss"><a href="https://alschwalm.com/blog/static/rss/"><i class="ic ic-rss"></i> Subscribe</a></li>
     </ul>
-        <a class="subscribe-button icon-feed" href="../../../../rss/index.xml">Subscribe</a>
-</div>
-<span class="nav-cover"></span>
+  </div>
+</nav>
+    <!-- Progressbar -->
+    <div class="progress-container">
+        <span class="progress-bar"></span>
+    </div>
 
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header id="post-header" >
+      <div class="inner">
+        <nav id="navigation">
+            <span id="home-button" class="nav-button">
+                <a class="home-button" href="../../../../" title="Home"><i class="ic ic-arrow-left"></i> Home</a>
+            </span>
+          <span id="menu-button" class="nav-button">
+            <a class="menu-button"><i class="ic ic-menu"></i> Menu</a>
+          </span>
+        </nav>
+        <h1 class="post-title">Reversing C++ Virtual Functions: Part 1</h1>
+        <!-- TODO : Proper class for headline -->
+        <span class="post-meta">
+                <a href="../../../../author/adam-schwalm.html">Adam Schwalm</a>
+            | <time datetime="Sat 17 December 2016">Sat 17 December 2016</time>
+        </span>
+        <!-- TODO : Modified check -->
+      </div>
+    </header>
 
-    <div class="site-wrapper">
+  <section id="wrapper">
+    <a class="hidden-close"></a>
 
-        
-
-
-<header class="main-header post-head no-cover">
-    <nav class="main-nav  clearfix">
-        
-            <a class="menu-button icon-menu" href="index.html#"><span class="word">Menu</span></a>
-    </nav>
-</header>
-
-<main class="content" role="main">
-    <article class="post">
-
-        <header class="post-header">
-            <h1 class="post-title">Reversing C++ Virtual Functions: Part 1</h1>
-            <section class="post-meta">
-                <time class="post-date" datetime="2016-12-17">17 December 2016</time> 
-            </section>
-        </header>
-
-        <section class="post-content">
-            <p>There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands of classes and massive type hierarchies, so I think it is worth describing some techniques for reversing them. But before that I’m going to go through some more simple cases. If you are already familiar with virtual function reversing, then you my want to proceed directly to <a href="https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/">part 2</a>.</p>
-
+    <!-- Post content -->
+    <main class="content" role="main">
+        <article class="post">
+        <div class="inner">
+            <section class="post-content">
+                <p>There are a few posts in various parts of the internet discussing reverse engineering C++, and these often address virtual functions to a large or small extent. However, I wanted to take some time to write about dealing with virtual functions in large, ‘enterprisy’ code-bases. These can often include thousands of classes and massive type hierarchies, so I think it is worth describing some techniques for reversing them. But before that I’m going to go through some more simple cases. If you are already familiar with virtual function reversing, then you my want to proceed directly to <a href="https://alschwalm.com/blog/static/2017/01/24/reversing-c-virtual-functions-part-2-2/">part 2</a>.</p>
 <p>It’s also worth noting the following:</p>
-
 <ul>
 <li>The code was compiled without RTTI (RTTI will be discussed later) and without exceptions</li>
 <li>I’m using 32bit x86 as the example platform</li>
 <li>The binaries have been stripped</li>
 <li>Most virtual function implementation details are not standardized and can vary from compiler to compiler. For this reason, we’re going to focus on the behavior of GCC.</li>
 </ul>
-
 <p>So in general, the binaries we’re looking at have been compiled with <code>g++ -m32 -fno-rtti -fnoexceptions -O1 file.cpp</code> and then stripped with <code>strip</code>.</p>
-
-<h5 id="thegoal">The Goal</h5>
-
+<h4>The Goal</h4>
 <p>In most cases, we cannot hope to “devirtualize” a virtual function call. The information needed to do that is just not present until runtime. Instead, the goal of this exercise will be to determine which function might be being called at a particular point. In later parts we will focus on narrowing down the possibilities.</p>
-
-<h5 id="thebasics">The Basics</h5>
-
+<h4>The Basics</h4>
 <p>I’m assuming that you are familiar with writing C++ but maybe not with its implementation. So, let’s start by looking at how the compiler implements virtual functions. Suppose we have the following classes:</p>
-
 <script src="https://gist.github.com/ALSchwalm/648158e4ed019cdd40632fc9335b4994.js"></script>
 
 <p>And we have some code that uses them:</p>
-
 <script src="https://gist.github.com/ALSchwalm/d978a2deb7cd47d467323762eede8f98.js"></script>
 
 <p>Of course whether <code>m</code> is a <em>Cat</em> or <em>Dog</em> depends on the output of <code>rand</code>. The compiler cannot know this ahead of time, so how does it call the right function? The answer is that for each type having a virtual function, the compiler inserts a table of function pointers called a <em>vtable</em> into the resulting binary. Each instance of such a type is given an additional member called a <em>vptr</em> that points to the correct <em>vtable</em> for that object. Code to initialize this pointer with the right value will be added to the constructor.</p>
-
 <p>Then, when the compiler needs to call a virtual function, it can just access the correct entry in the <em>vtable</em> for the object and call that. This means that the entries in the table must be in the same order for each related type (each class’s <code>run</code> could be at index 1, every <code>walk</code> at index 2, etc).</p>
-
 <p>So we would expect to find three tables in the binary for <em>Mammal</em>, <em>Cat</em> and <em>Dog</em>. We can locate them quickly by looking through <code>.rodata</code> for adjacent function offsets:</p>
-
-<p><img src="../../../../content/images/2016/12/2016-12-14-194724_796x759_scrot.png" alt="IDA is not always great at detecting function addresses in rodata. You may need to play around a little to see the first table."></p>
-
+<p><img alt="IDA is not always great at detecting function addresses in rodata. You may need to play around a little to see the first table." src="/blog/static/images/2016/12/2016-12-14-194724_796x759_scrot.png"></p>
 <p>What about the main function? It decompiles to:</p>
-
-<p><img src="../../../../content/images/2016/12/2016-12-14-175006_728x438_scrot.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2016/12/2016-12-14-175006_728x438_scrot.png"></p>
 <p>We can see that 4 bytes are being allocated in either branch. This makes sense, as the only data in the structure is the <em>vptr</em> added by the compiler. We can also see the virtual function calls on lines 15 and 17. In the first, the compiler is dereferencing (to get the <em>vptr</em>) and adding 12 to access the 4th entry in the <em>vtable</em>. Line 17 gets the 2nd entry in the table. The program then calls the function pointer it retrieved from the table.</p>
-
-<p><img src="../../../../content/images/2016/12/2016-12-14-214141_825x115_scrot.png" alt="">
-<img src="../../../../content/images/2016/12/2016-12-14-214210_828x118_scrot.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2016/12/2016-12-14-214141_825x115_scrot.png">
+<img alt="" src="/blog/static/images/2016/12/2016-12-14-214210_828x118_scrot.png"></p>
 <p>Looking back at the tables, the 4th entries are <code>sub_80487AA</code>, <code>sub_804877E</code>, and <code>___cxa_pure_virtual</code>. If we look at the bodies of the two “sub_” functions we see that they are the definitions of <code>walk</code> for <em>Dog</em> and <em>Cat</em> (shown in the pictures). By elimination, the <code>___cxa_pure_virtual</code> function must belong to the vtable for <em>Mammal</em>. This makes sense, as <em>Mammal</em> has no definition of <code>walk</code>, and these “pure_virtual” entries are inserted by GCC when a function is (unsurprisingly) purely virtual. So, table 1 must be for <em>Mammal</em> objects, 2 is for <em>Cats</em> and table 3 is for <em>Dogs</em>.</p>
-
 <p>But it is seems strange that there are 5 entries in each vtable when there are only 4 virtual functions in play:</p>
-
 <ul>
 <li><code>run</code></li>
 <li><code>walk</code></li>
 <li><code>move</code></li>
 <li>the destructors</li>
 </ul>
-
 <p>The additional entry is an ‘extra’ destructor. This is here because GCC will insert multiple destructors that are used in different circumstances. The first of these will simply destroy the members of the object. The second will also delete the memory that was allocated for the object (this is the version called in the example in line 17). In some cases there may be a 3rd version that is used in certain virtual-inheritance circumstances.</p>
-
 <p>By looking back at the contents of the ‘sub_’ functions, we find the layout of the vtables are as follows:</p>
-
-<pre><code>| Offset | Pointer to  |
+<div class="highlight"><pre><span></span><code>| Offset | Pointer to  |
 |--------+-------------|
 |      0 | Destructor1 |
 |      4 | Destructor2 |
 |      8 | run         |
 |     12 | walk        |
 |     16 | move        |
-</code></pre>
+</code></pre></div>
 
 <p>However, notice that the first two entries in the <em>Mammal</em> table are zero. This is an eccentricity of newer versions of GCC. The compiler will replace the destructor entries with NULL pointers in classes that have a pure-virtual method (i.e., classes that are abstract).</p>
-
 <p>With all this in mind, let’s do some renaming. Afterwards we’re left with:</p>
-
-<p><img src="../../../../content/images/2016/12/2016-12-15-192953_796x691_scrot.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2016/12/2016-12-15-192953_796x691_scrot.png"></p>
 <p>Notice that because neither <em>Cat</em> nor <em>Dog</em> implemented <code>move</code>, they both inherited the definition from <em>Mammal</em> and so the move entries in their vtables are the same.</p>
-
-<h5 id="structures">Structures</h5>
-
+<h4>Structures</h4>
 <p>At this point is useful to start defining some structures. We’ve already seen that the only member of the <em>Mammal</em>, <em>Cat</em>, and <em>Dog</em> structures will be their vptrs. So we can define these quickly:</p>
-
-<p><img src="../../../../content/images/2016/12/2016-12-16-164359_616x303_scrot.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2016/12/2016-12-16-164359_616x303_scrot.png"></p>
 <p>The next step is a bit more complicated. We’re going to create a structure for each <em>vtable</em>. The objective here is to get the decompiler output to show us what function would actually be called if <code>m</code> had a particular type. We can then cycle through these possibilities and examine all of the options.</p>
-
 <p>To achieve this, the members of this structure will have the name of the corresponding function it will point to, like so:</p>
-
-<p><img src="../../../../content/images/2016/12/2016-12-16-164830_600x788_scrot.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2016/12/2016-12-16-164830_600x788_scrot.png"></p>
 <p>You will need to set the type of the <em>vptr</em> for each structure to be the corresponding <code>Vtable</code> type. For example, the type of the <em>vptr</em> for <code>Cat</code> should be <code>CatVtable*</code>. Additionally, I have set the type of each vtable entry to be a function pointer. This will help IDA show things correctly. So the type of the <code>Dog__run</code> element should be <code>void (*) (Dog*)</code> (because that is the signature of <code>Dog__run</code>).</p>
-
 <p>If we go back to the decompiled code for main, we can now rename the local variable to <code>m</code>, and set its type to be <code>Cat*</code> or <code>Dog*</code>. Afterwards we see:</p>
-
-<p><img src="../../../../content/images/2016/12/2016-12-16-185921_437x338_scrot2.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2016/12/2016-12-16-185921_437x338_scrot2.png"></p>
 <p>Now we can easily see the possible functions being called at the call-sites. If <code>m</code> is a <code>Cat</code> then line 15 will call <code>Cat__walk</code>, if it is a <code>Dog</code> then it will call <code>Dog__walk</code>. Obviously this was a simple example, but this is the general idea.</p>
-
 <p>We could also set the type of <code>m</code> to be <code>Mammal*</code>, but we will see some problems if we do that:</p>
-
-<p><img src="../../../../content/images/2016/12/2016-12-16-190425_594x341_scrot.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2016/12/2016-12-16-190425_594x341_scrot.png"></p>
 <p>Notice that if the real type of <code>m</code> was <code>Mammal</code> then the call at line 15 would be to a pure-virtual function. This should never happen. There's also a call to a null pointer at line 17 which would obviously cause issues. So we can conclude that <code>m</code> must not be a <code>Mammal</code>.</p>
-
 <p>This may seem strange, because <code>m</code> is in fact declared as a <code>Mammal*</code>. However, that type is the compile-time type (a.k.a., the <em>static type</em>). We are interested in the <em>dynamic</em> type (or runtime-type) of <code>m</code>, because this is what determines which function is called in a virtual function call. In fact, the dynamic type of an object can <em>never</em> be an abstract type. So if a given <em>vtable</em> contains one of the <code>___cxa_pure_virtual</code> functions, then it is not a candidate and you can ignore it. We could have not created a <em>vtable</em> structure for <em>Mammal</em> because it will never be used (but I hope seeing why was useful).</p>
-
 <p>So the dynamic type will be <em>Cat</em> or <em>Dog</em>, and we know which functions will be called in either case by looking at their vtable entries. This is the basics of virtual function reverse engineering. In the next part we will go in to how to deal with larger code bases and more complex scenarios.</p>
-        </section>
+            </section>
 
-        <footer class="post-footer">
-
-
-
-            <section class="author">
-                <h4><a href="../../../../author/adam/">Adam Schwalm</a></h4>
-
-                    <p>Read <a href="../../../../author/adam/">more posts</a> by this author.</p>
-                <div class="author-meta">
-                    
-                    
+            <section class="post-info">
+                <div class="post-share">
+                    <a class="twitter" href="https://twitter.com/share?text=Reversing C++ Virtual Functions: Part 1&amp;url=../../../../2016/12/17/reversing-c-virtual-functions/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <i class="ic ic-twitter"></i><span class="hidden">Twitter</span>
+                    </a>
+                    <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u=../../../../2016/12/17/reversing-c-virtual-functions/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <i class="ic ic-facebook"></i><span class="hidden">Facebook</span>
+                    </a>
+                    <div class="clear"></div>
                 </div>
-            </section>
+
+                <aside class="post-tags">
+<a href="../../../../tag/reverse-engineering.html">reverse-engineering</a>                </aside>
+
+                <div class="clear"></div>
 
 
-            <section class="share">
-                <h4>Share this post</h4>
-                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=Reversing%20C%2B%2B%20Virtual%20Functions%3A%20Part%201&amp;url=https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                    <span class="hidden">Twitter</span>
-                </a>
-                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                    <span class="hidden">Facebook</span>
-                </a>
-                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://alschwalm.com/blog/static/2016/12/17/reversing-c-virtual-functions/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-                    <span class="hidden">Google+</span>
-                </a>
-            </section>
+                </section>
 
 
-        </footer>
+                <aside class="post-nav">
+                    <div class="clear"></div>
+                </aside>
 
-    </article>
-</main>
+            </div>
+        </article>
+    </main>
+      <!-- TODO : Body class -->
+    <div id="body-class" style="display: none;" class=""></div>
 
-<aside class="read-next">
-    <a class="read-next-story no-cover" href="../../../../2017/01/24/reversing-c-virtual-functions-part-2-2/">
-        <section class="post">
-            <h2>Reversing C++ Virtual Functions: Part 2</h2>
-            <p>In the previous part I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there…</p>
+    <footer id="footer">
+      <div class="inner">
+        <section class="credits">
+
+
+          <span class="credits-theme">Theme <a href="https://github.com/arulrajnet/attila" rel="nofollow">Attila</a></span>
+          <span class="credits-software">Published with <a href="https://github.com/getpelican/pelican" rel="nofollow">Pelican</a></span>
         </section>
-    </a>
-</aside>
+      </div>
+    </footer>
+  </section>
 
-
-
-        <footer class="site-footer clearfix">
-            <section class="copyright"><a href="../../../../">Security Through Obscurity</a> © 2017</section>
-            <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
-        </footer>
-
-    </div>
-
-    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-    <script>  
-    // Creates Captions from Alt tags
-    $(".post-content img").each(
-        function() {
-            // Let's put a caption if there is one
-            if ($(this).attr("alt")) {
-                $(this).wrap(
-                    '<figure class="image"></figure>'
-                ).after(
-                    '<figcaption>' +
-                    $(this).attr(
-                        "alt") +
-                    '</figcaption>'
-                );
-            }
-        });
-</script>
-    <script type="text/javascript" src="../../../../assets/js/jquery.fitvids.js?v=24e9aa9fe4"></script>
-    <script type="text/javascript" src="../../../../assets/js/index.js?v=24e9aa9fe4"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="../../../../theme/js/script.js"></script>
 
 </body>
+</html>

@@ -1,275 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-    <title>Exploring Dynamic Dispatch in Rust</title>
-    <meta name="description" content="">
 
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exploring Dynamic Dispatch in Rust</title>
 
-    <link rel="shortcut icon" href="../../../../favicon.ico">
 
-    <link rel="stylesheet" type="text/css" href="../../../../assets/css/screen.css?v=24e9aa9fe4">
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic%7COpen+Sans:700,400">
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="origin" />
+  <meta name="generator" content="Pelican" />
+<link href="../../../../2017/03/07/exploring-dynamic-dispatch-in-rust/" rel="canonical" />
+  <!-- Feed -->
+      <link href="https://alschwalm.com/blog/static/rss/" type="application/atom+xml" rel="alternate" title="Security Through Obscurity Full Atom Feed" />
 
-    <link rel="canonical" href="https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/">
-    <meta name="referrer" content="no-referrer-when-downgrade">
-    <link rel="amphtml" href="https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/amp/">
-    
-    <meta property="og:site_name" content="Security Through Obscurity">
-    <meta property="og:type" content="article">
-    <meta property="og:title" content="Exploring Dynamic Dispatch in Rust">
-    <meta property="og:description" content="Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical mistakes please let me know and I will try to correct them. With that out of the way, lets get started. My real">
-    <meta property="og:url" content="https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/">
-    <meta property="article:published_time" content="2017-03-07T00:17:27.000Z">
-    <meta property="article:modified_time" content="2017-03-07T00:17:27.000Z">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Exploring Dynamic Dispatch in Rust">
-    <meta name="twitter:description" content="Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical mistakes please let me know and I will try to correct them. With that out of the way, lets get started. My real">
-    <meta name="twitter:url" content="https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/">
-    <meta name="twitter:label1" content="Written by">
-    <meta name="twitter:data1" content="Adam Schwalm">
+  <link href="../../../../theme/css/style.css" type="text/css" rel="stylesheet" />
+
+  <!-- Code highlight color scheme -->
+      <link href="../../../../theme/css/code_blocks/github.css" rel="stylesheet">
+
+
+  <!-- Custom fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300' rel='stylesheet' type='text/css' />
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+
+
+    <meta name="description" content="Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical...">
+
+    <meta name="author" content="Adam Schwalm">
+
+    <meta name="tags" content="rust">
+
+
+
+
+<!-- Open Graph -->
+<meta prefix="og: http://ogp.me/ns#" property="og:site_name" content="Security Through Obscurity"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:title" content="Exploring Dynamic Dispatch in Rust"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:description" content="Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical..."/>
+<meta prefix="og: http://ogp.me/ns#" property="og:locale" content="en_US"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:url" content="../../../../2017/03/07/exploring-dynamic-dispatch-in-rust/"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:type" content="article"/>
+<meta prefix="og: http://ogp.me/ns#" property="article:published_time" content="2017-03-07 00:00:00-06:00"/>
+<meta prefix="og: http://ogp.me/ns#" property="article:modified_time" content=""/>
+<meta prefix="og: http://ogp.me/ns#" property="article:author" content="../../../../author/adam-schwalm.html">
+<meta prefix="og: http://ogp.me/ns#" property="article:section" content="07"/>
+<meta prefix="og: http://ogp.me/ns#" property="article:tag" content="rust"/>
+<meta prefix="og: http://ogp.me/ns#" property="og:image" content="../../../../theme/images/post-bg.jpg">
+
+<!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@alschwalm">
-    
-    <script type="application/ld+json">
+    <meta name="twitter:title" content="Exploring Dynamic Dispatch in Rust">
+    <meta name="twitter:url" content="../../../../2017/03/07/exploring-dynamic-dispatch-in-rust/">
+
+        <meta name="twitter:image:src" content="../../../../theme/images/post-bg.jpg">
+
+      <meta name="twitter:description" content="Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical...">
+
+<script type="application/ld+json">
 {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "publisher": {
-        "@type": "Organization",
-        "name": "Security Through Obscurity",
-        "logo": "https://alschwalm.com/blog/static/ghost/img/ghosticon.jpg"
-    },
-    "author": {
-        "@type": "Person",
-        "name": "Adam Schwalm",
-        "url": "https://alschwalm.com/blog/static/author/adam/",
-        "sameAs": []
-    },
-    "headline": "Exploring Dynamic Dispatch in Rust",
-    "url": "https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/",
-    "datePublished": "2017-03-07T00:17:27.000Z",
-    "dateModified": "2017-03-07T00:17:27.000Z",
-    "description": "Let me preface this by saying that I am a novice in the world of rust (though I&#x27;m liking things so far!), so if I make technical mistakes please let me know and I will try to correct them. With that out of the way, lets get started. My real",
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "http://localhost:2368"
-    }
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "name": "Exploring Dynamic Dispatch in Rust",
+  "headline": "Exploring Dynamic Dispatch in Rust",
+  "datePublished": "2017-03-07 00:00:00-06:00",
+  "dateModified": "",
+  "author": {
+    "@type": "Person",
+    "name": "Adam Schwalm",
+    "url": "../../../../author/adam-schwalm.html"
+  },
+  "image": "../../../../theme/images/post-bg.jpg",
+  "url": "../../../../2017/03/07/exploring-dynamic-dispatch-in-rust/",
+  "description": "Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical..."
 }
-    </script>
-
-    <meta name="generator" content="Ghost 0.11">
-    <link rel="alternate" type="application/rss+xml" title="Security Through Obscurity" href="https://alschwalm.com/blog/static/rss/">
-    <style>  
-.post .post-content figcaption {
-    font-weight: 400;
-    font-style: italic;
-    font-size: 16px;
-    line-height: 1.3;
-    color: #666665;
-    outline: 0;
-    z-index: 300;
-    text-align: center;
-}
-</style>
-<script>
-   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-   ga('create', 'UA-89212918-1', 'auto');
-   ga('send', 'pageview');
-
 </script>
 </head>
-<body class="post-template nav-closed">
+<!-- TODO : Body class -->
+<body class="home-template">
 
-    <div class="nav">
-    <h3 class="nav-title">Menu</h3>
-    <a href="index.html#" class="nav-close">
-        <span class="hidden">Close</span>
-    </a>
+<nav id="menu">
+  <a class="close-button">Close</a>
+  <div class="nav-wrapper">
+    <p class="nav-label">Menu</p>
     <ul>
-            <li class="nav-home" role="presentation"><a href="https://alschwalm.com/blog/static/">Home</a></li>
+
+
+        <li class="nav-rss"><a href="https://alschwalm.com/blog/static/rss/"><i class="ic ic-rss"></i> Subscribe</a></li>
     </ul>
-        <a class="subscribe-button icon-feed" href="../../../../rss/index.xml">Subscribe</a>
-</div>
-<span class="nav-cover"></span>
+  </div>
+</nav>
+    <!-- Progressbar -->
+    <div class="progress-container">
+        <span class="progress-bar"></span>
+    </div>
 
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+    <header id="post-header" >
+      <div class="inner">
+        <nav id="navigation">
+            <span id="home-button" class="nav-button">
+                <a class="home-button" href="../../../../" title="Home"><i class="ic ic-arrow-left"></i> Home</a>
+            </span>
+          <span id="menu-button" class="nav-button">
+            <a class="menu-button"><i class="ic ic-menu"></i> Menu</a>
+          </span>
+        </nav>
+        <h1 class="post-title">Exploring Dynamic Dispatch in Rust</h1>
+        <!-- TODO : Proper class for headline -->
+        <span class="post-meta">
+                <a href="../../../../author/adam-schwalm.html">Adam Schwalm</a>
+            | <time datetime="Tue 07 March 2017">Tue 07 March 2017</time>
+        </span>
+        <!-- TODO : Modified check -->
+      </div>
+    </header>
 
-    <div class="site-wrapper">
+  <section id="wrapper">
+    <a class="hidden-close"></a>
 
-        
-
-
-<header class="main-header post-head no-cover">
-    <nav class="main-nav  clearfix">
-        
-            <a class="menu-button icon-menu" href="index.html#"><span class="word">Menu</span></a>
-    </nav>
-</header>
-
-<main class="content" role="main">
-    <article class="post">
-
-        <header class="post-header">
-            <h1 class="post-title">Exploring Dynamic Dispatch in Rust</h1>
-            <section class="post-meta">
-                <time class="post-date" datetime="2017-03-07">07 March 2017</time> 
-            </section>
-        </header>
-
-        <section class="post-content">
-            <p>Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical mistakes please let me know and I will try to correct them. With that out of the way, lets get started.</p>
-
+    <!-- Post content -->
+    <main class="content" role="main">
+        <article class="post">
+        <div class="inner">
+            <section class="post-content">
+                <p>Let me preface this by saying that I am a novice in the world of rust (though I'm liking things so far!), so if I make technical mistakes please let me know and I will try to correct them. With that out of the way, lets get started.</p>
 <p>My real motivation for taking a closer look at dynamic dispatch can be seen in the following code snippet. Suppose I want to create a struct <code>CloningLab</code> that contains a vector of trait objects (in this case, <code>Mammal</code>):</p>
-
 <script src="https://gist.github.com/ALSchwalm/b43986e11db2d864ee9adf090dedfa45.js"></script>
 
 <p>This works fine. You can iterate over the vector of subjects and call <code>run</code> or <code>walk</code> as you would expect. However, things break down when you try to add an additional trait to the trait object bounds like:</p>
-
 <script src="https://gist.github.com/ALSchwalm/d56ccd574a3b517ad20a7c6e5dc3f3f8.js"></script>
 
 <p>This fails with the the following error:</p>
-
-<pre><code>error[E0225]: only the builtin traits can be used as closure or object bounds
- --&gt; test1.rs:3:32
-  |
-3 |     subjects: Vec&lt;Box&lt;Mammal + Clone&gt;&gt;,
-  |                                ^^^^^ non-builtin trait used as bounds
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="n">error</span><span class="o">[</span><span class="n">E0225</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">builtin</span><span class="w"> </span><span class="n">traits</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">closure</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="k">object</span><span class="w"> </span><span class="n">bounds</span><span class="w"></span>
+<span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">test1</span><span class="p">.</span><span class="nl">rs</span><span class="p">:</span><span class="mi">3</span><span class="err">:</span><span class="mi">32</span><span class="w"></span>
+<span class="w">  </span><span class="o">|</span><span class="w"></span>
+<span class="mi">3</span><span class="w"> </span><span class="o">|</span><span class="w">     </span><span class="nl">subjects</span><span class="p">:</span><span class="w"> </span><span class="n">Vec</span><span class="o">&lt;</span><span class="n">Box</span><span class="o">&lt;</span><span class="n">Mammal</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Clone</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="o">|</span><span class="w">                                </span><span class="o">^^^^^</span><span class="w"> </span><span class="n">non</span><span class="o">-</span><span class="n">builtin</span><span class="w"> </span><span class="n">trait</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">bounds</span><span class="w"></span>
+</code></pre></div>
 
 <p>And I found this surprising. In my mind, a trait object with multiple bounds would be analogous to multiple inheritance in C++. I would expect the object to have multiple vpointers for each 'base', and do dispatch through the appropriate one. Given that rust is still a somewhat young language, I could appreciate why the developers might not want to introduce that complexity immediately (being stuck with a poor design forever would be a high cost for little reward), but I wanted to work out exactly how such a system might work (or not work).</p>
-
-<h5 id="vtablesinrust">Vtables in Rust</h5>
-
-<p>Like C++, dynamic dispatch is achieved in Rust  though a table of function pointers (described <a href="https://doc.rust-lang.org/book/trait-objects.html#representation">here</a> in the rust docs). According to that documentation, the memory layout of a <code>Mammal</code> trait object made from a <code>Cat</code> will consist of two pointers arranged like:</p>
-
-<p><img src="../../../../content/images/2017/03/cat_layout-2.png" alt=""></p>
-
+<h5>Vtables in Rust</h5>
+<p>Like C++, dynamic dispatch is achieved in Rust  though a table of function pointers (described <a href="https://doc.rust-lang.org/1.30.0/book/first-edition/trait-objects.html#representation">here</a> in the rust docs). According to that documentation, the memory layout of a <code>Mammal</code> trait object made from a <code>Cat</code> will consist of two pointers arranged like:</p>
+<p><img alt="" src="/blog/static/images/2017/03/cat_layout-2.png"></p>
 <p>I was surprised to see that the data members of the object had an additional layer of indirection. This is unlike the (typical) C++ representation which would look this:</p>
-
-<p><img src="../../../../content/images/2017/03/cat_layout_cpp.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2017/03/cat_layout_cpp.png"></p>
 <p>With the vtable pointer first and the data members immediately following. The rust approach is interesting. It incurs a cost when 'constructing' a trait object, unlike the C++ approach in which a cast to a base pointer is free (or just some addition for multiple inheritance). But this cost is very minor. The rust approach has the benefit that an object does not have to store the vtable pointer if it is never used in a polymorphic context. I think it is fair to say that rust encourages the use of monomorphism, so this is probably a good trade-off.</p>
-
-<h5 id="traitobjectswithmultiplebounds">Trait Objects with Multiple Bounds</h5>
-
+<h5>Trait Objects with Multiple Bounds</h5>
 <p>Returning to the original problem, lets consider how it is resolved in C++. If we have multiple traits (purely abstract classes) that we implement for some structure, then an instance of that structure will have the following layout (e.x., Mammal and Clone):</p>
-
-<p><img src="../../../../content/images/2017/03/cat_and_clone_cpp-1.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2017/03/cat_and_clone_cpp-1.png"></p>
 <p>Notice that we now have multiple vtable pointers, one for each base class <code>Cat</code> inherits from (that contains virtual functions). To convert a <code>Cat*</code> to a <code>Mammal*</code>, we don't need to do anything, but to convert a <code>Cat*</code> to a <code>Clone*</code>, the compiler will add 8 bytes (assuming <code>sizeof(void*) == 8</code>) to the <code>this</code> pointer.</p>
-
 <p>It is easy to imagine a similar thing for rust:</p>
-
-<p><img src="../../../../content/images/2017/03/cat_clone_rust_candidate_1-1.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2017/03/cat_clone_rust_candidate_1-1.png"></p>
 <p>So there are now two vtable pointers in the trait object. If the compiler needs to perform dynamic dispatch on a <code>Mammal + Clone</code> trait object, it can access the appropriate entry in the appropriate vtable and perform the call. Because rust does not (yet) support struct inheritance, the problem of determining the correct subobject to pass as <code>self</code>, does not exist. <code>self</code> will always be whatever is pointed at by the <code>data</code> pointer.</p>
-
 <p>This seems like it would work well, but this approach also has some redundancy. We have multiple copies of the type's size, alignment, and <code>drop</code> pointer. We can eliminate this redundancy by combining the vtables. This is essentially what happens when you perform trait inheritance like:</p>
-
 <script src="https://gist.github.com/ALSchwalm/b86e7753e26b57776bb00ef46aac6784.js"></script>
 
 <p>Using trait inheritance in this way is a commonly suggested trick to get around the normal limitation of trait objects. The use of trait inheritance produces a single vtable without any redundancy. So the memory layout looks like:</p>
-
-<p><img src="../../../../content/images/2017/03/clone_mammal_rust-1.png" alt=""></p>
-
+<p><img alt="" src="/blog/static/images/2017/03/clone_mammal_rust-1.png"></p>
 <p>Much simpler! And you can currently do this! Perhaps what we really want is for the compiler to generate a trait like this for us when we try to make a trait object with multiple bounds. But hold on, there are some significant limitations. Namely, you cannot convert a trait object of <code>CloneMammal</code> in to a trait object of <code>Clone</code>. This seems like very strange behavior, but it is not hard to see why such a conversion won't work.</p>
-
 <p>Suppose you attempt to write something like:</p>
-
 <script src="https://gist.github.com/ALSchwalm/a1acc010590aac091a4d0c968f6024a2.js"></script>
 
 <p>Line 10 must fail to compile because the compiler cannot possibly find the appropriate vtable to put in the trait object. It only knows that the object being referenced implements <code>CloneMammal</code>, but it doesn't know which one. Of course, we can tell that it must be a <code>Cat</code>, but what if the code was something like:</p>
-
 <script src="https://gist.github.com/ALSchwalm/fc532dbdae257a03c070d02f7e2b9be1.js"></script>
 
 <p>The problem is more clear here. How can the compiler know what vtable to put in the trait object being constructed on line 17? If <code>clone_mammal</code> refers to a <code>Cat</code>, then it should be the <code>Cat</code> vtable for <code>Clone</code>. If it refers to a <code>Dog</code> then it should be the <code>Dog</code> vtable for <code>Clone</code>.</p>
-
 <p>So the trait-inheritance approach has this limitation. You cannot convert a trait object in to any other kind of trait object, even when the trait object you want is <em>more specific</em> than the one you already have.</p>
-
 <p>The multiple vtable pointer approach seems like a good way forward to allowing trait objects with multiple bounds. It is trivial to convert to a less-bounded trait object with that setup. The vtable the compiler should use is simply whatever is already <code>Clone</code> vtable pointer slot (the second pointer in diagram 4).</p>
-
-<h5 id="conclusions">Conclusions</h5>
-
+<h5>Conclusions</h5>
 <p>I hope going through this was a useful exercise to some readers. It certainly helped me organize how I was thinking about trait objects. In practice, I think this is not really a pressing issue, the restriction was just surprising to me.</p>
-        </section>
+            </section>
 
-        <footer class="post-footer">
-
-
-
-            <section class="author">
-                <h4><a href="../../../../author/adam/">Adam Schwalm</a></h4>
-
-                    <p>Read <a href="../../../../author/adam/">more posts</a> by this author.</p>
-                <div class="author-meta">
-                    
-                    
+            <section class="post-info">
+                <div class="post-share">
+                    <a class="twitter" href="https://twitter.com/share?text=Exploring Dynamic Dispatch in Rust&amp;url=../../../../2017/03/07/exploring-dynamic-dispatch-in-rust/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <i class="ic ic-twitter"></i><span class="hidden">Twitter</span>
+                    </a>
+                    <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u=../../../../2017/03/07/exploring-dynamic-dispatch-in-rust/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <i class="ic ic-facebook"></i><span class="hidden">Facebook</span>
+                    </a>
+                    <div class="clear"></div>
                 </div>
-            </section>
+
+                <aside class="post-tags">
+<a href="../../../../tag/rust.html">rust</a>                </aside>
+
+                <div class="clear"></div>
 
 
-            <section class="share">
-                <h4>Share this post</h4>
-                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=Exploring%20Dynamic%20Dispatch%20in%20Rust&amp;url=https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                    <span class="hidden">Twitter</span>
-                </a>
-                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                    <span class="hidden">Facebook</span>
-                </a>
-                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-                    <span class="hidden">Google+</span>
-                </a>
-            </section>
+                </section>
 
 
-        </footer>
+                <aside class="post-nav">
+                    <div class="clear"></div>
+                </aside>
 
-    </article>
-</main>
+            </div>
+        </article>
+    </main>
+      <!-- TODO : Body class -->
+    <div id="body-class" style="display: none;" class=""></div>
 
-<aside class="read-next">
-    <a class="read-next-story prev no-cover" href="../../../01/24/reversing-c-virtual-functions-part-2-2/">
-        <section class="post">
-            <h2>Reversing C++ Virtual Functions: Part 2</h2>
-            <p>In the previous part I described one approach to 'devirtualize' function calls in a small C++ program. Naturally there…</p>
+    <footer id="footer">
+      <div class="inner">
+        <section class="credits">
+
+
+          <span class="credits-theme">Theme <a href="https://github.com/arulrajnet/attila" rel="nofollow">Attila</a></span>
+          <span class="credits-software">Published with <a href="https://github.com/getpelican/pelican" rel="nofollow">Pelican</a></span>
         </section>
-    </a>
-</aside>
+      </div>
+    </footer>
+  </section>
 
-
-
-        <footer class="site-footer clearfix">
-            <section class="copyright"><a href="../../../../">Security Through Obscurity</a> © 2017</section>
-            <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
-        </footer>
-
-    </div>
-
-    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-    <script>  
-    // Creates Captions from Alt tags
-    $(".post-content img").each(
-        function() {
-            // Let's put a caption if there is one
-            if ($(this).attr("alt")) {
-                $(this).wrap(
-                    '<figure class="image"></figure>'
-                ).after(
-                    '<figcaption>' +
-                    $(this).attr(
-                        "alt") +
-                    '</figcaption>'
-                );
-            }
-        });
-</script>
-    <script type="text/javascript" src="../../../../assets/js/jquery.fitvids.js?v=24e9aa9fe4"></script>
-    <script type="text/javascript" src="../../../../assets/js/index.js?v=24e9aa9fe4"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="../../../../theme/js/script.js"></script>
 
 </body>
+</html>
