@@ -69,7 +69,7 @@
          <div class="banner-text">
             <h1 class="responsive-headline">I'm Adam Schwalm.</h1>
             <h3>
-              I'm a <span>reverse engineer</span> and <span>programmer</span>
+              I'm a <span>systems engineer</span> and <span>programmer</span>
               based in Huntsville, Alabama.
             </h3>
             <hr />
@@ -126,36 +126,10 @@
    </section> <!-- About Section End-->
 
 
-   <!-- Resume Section
-        ================================================== -->
+   <!-- Resume Section ================================================== -->
    <section id="resume">
 
-     <!-- Education
-        ----------------------------------------------- -->
-     <div class="row education">
-       <div class="three columns header-col">
-         <h1><span>Education</span></h1>
-       </div>
-
-       <div class="nine columns main-col">
-         <div class="row item">
-           <div class="twelve columns">
-             <h3>Mississippi State University</h3>
-             <p class="info">Batchelor's degree in Software Engineering <span>&bull;</span> <em class="date">May 2015</em></p>
-
-             <p>
-               My studies in software engineering ranged from high-performance computing
-               to database design. My undergraduate work focused on the design of a lock-free
-               memory allocator in C++.
-             </p>
-           </div>
-         </div> <!-- item end -->
-       </div> <!-- main-col end -->
-     </div> <!-- End Education -->
-
-
-     <!-- Work
-        ----------------------------------------------- -->
+     <!-- Work ----------------------------------------------- -->
      <div class="row work">
        <div class="three columns header-col">
          <h1><span>Work</span></h1>
@@ -164,10 +138,33 @@
        <div class="nine columns main-col">
          <div class="row item">
            <div class="twelve columns">
-             <h3>Star Lab</h3>
-             <p class="info">Software Engineer <span>&bull;</span> <em class="date">Dec 2017 - Present</em></p>
+             <h3>Amazon Lab126</h3>
+             <p class="info">Systems Engineer <span>&bull;</span> <em class="date">Sept 2022 - Present</em></p>
              <p>
-               Currently I am working at Star Lab as a software engineer writing Rust and working with the Xen
+               Currently work on Linux-based operating systems development at Amazon across a variety
+               of hardware and customer use cases.
+             </p>
+           </div>
+         </div> <!-- item end -->
+
+         <div class="row item">
+           <div class="twelve columns">
+             <h3>OpenDrives</h3>
+             <p class="info">Sr Platform Engineer <span>&bull;</span> <em class="date">Oct 2021 - Sept 2022</em></p>
+             <p>
+               Developed and maintained Rust userspace tooling integrated into Debian-based operating system.
+               Worked extensively with ZFS and Lustre filesystems ad well as leading development of reproducible
+               build environment for OS images and virtualized testing.
+             </p>
+           </div>
+         </div> <!-- item end -->
+
+         <div class="row item">
+           <div class="twelve columns">
+             <h3>Star Lab</h3>
+             <p class="info">Software Engineer <span>&bull;</span> <em class="date">Dec 2017 - Oct 2021</em></p>
+             <p>
+               Lead developer for a virtualization project writing Rust and working with the Xen
                hypervisor, as well as doing some Linux kernel development.
              </p>
            </div>
@@ -198,6 +195,29 @@
          </div> <!-- item end -->
        </div> <!-- main-col end -->
      </div> <!-- End Work -->
+
+     <!-- Education ----------------------------------------------- -->
+     <div class="row education">
+       <div class="three columns header-col">
+         <h1><span>Education</span></h1>
+       </div>
+
+       <div class="nine columns main-col">
+         <div class="row item">
+           <div class="twelve columns">
+             <h3>Mississippi State University</h3>
+             <p class="info">Batchelor's degree in Software Engineering <span>&bull;</span> <em class="date">May 2015</em></p>
+
+             <p>
+               My studies in software engineering ranged from high-performance computing
+               to database design. My undergraduate work focused on the design of a lock-free
+               memory allocator in C++.
+             </p>
+           </div>
+         </div> <!-- item end -->
+       </div> <!-- main-col end -->
+     </div> <!-- End Education -->
+
 
 
      <div class="row publications">
@@ -260,7 +280,7 @@
              <b>Programming Languages</b>
            </dt>
            <dd>
-             C++/14, C, Python, Javascript, D, and Java
+             Rust, C, C++, Python, Javascript, D, and Java
            </dd>
            <dt>
              <b>Development Environments</b>
@@ -272,7 +292,7 @@
              <b>Platforms</b>
            </dt>
            <dd>
-             GNU Linux (Kali/Arch/Debian), Windows
+             GNU Linux (Debian/RHEL), Windows
            </dd>
            <dt>
              <b>Security Tools</b>
@@ -320,11 +340,11 @@
              <div class="item-wrap">
 
                <a href="#modal-02" title="">
-                 <img alt="" src="images/portfolio/quad.png">
+                 <img alt="" src="images/portfolio/transient.png">
                  <div class="overlay">
                    <div class="portfolio-item-meta">
-                     <h5>QuaD</h5>
-                     <p>Web Development</p>
+                     <h5>Transient</h5>
+                     <p>Virtualization</p>
                    </div>
                  </div>
                  <div class="link-icon"><i class="icon-plus"></i></div>
@@ -397,20 +417,21 @@
 
        <div id="modal-02" class="popup-modal mfp-hide">
 
-         <img class="scale-with-grid" src="images/portfolio/modals/m-quad.png" alt="" />
+         <img class="scale-with-grid" src="images/portfolio/modals/m-transient.gif" alt="" />
 
          <div class="description-box">
-           <h4>QuaD</h4>
-           <p>A WebGL based puzzle game written using <a href="http://phaser.io">phaser.</a></p>
-           <span class="categories"><i class="fa fa-tag"></i>Web Development, Game</span>
+           <h4>Transient</h4>
+           <p>
+             A wrapper for QEMU allowing the creation of virtual machines with shared folder,
+             ssh, and disk creation support.
+           </p>
+           <span class="categories"><i class="fa fa-tag"></i>Virtualization</span>
          </div>
 
          <div class="link-box">
-           <a href="https://alschwalm.com/Quad">Play</a>
-           &nbsp;&nbsp;
-            <a href="https://www.github.com/alschwalm/quad">Details</a>
+            <a href="https://www.github.com/alschwalm/transient">Details</a>
             <a class="popup-modal-dismiss">Close</a>
-          </div>
+         </div>
         </div><!-- modal-02 End -->
 
          <div id="modal-03" class="popup-modal mfp-hide">
